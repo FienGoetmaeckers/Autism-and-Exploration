@@ -11,6 +11,12 @@
 
 ## Creating reward distributions
 * **create_grids.py**  
-    used to create the reward distributions used in the behavioural task. 
+    used to create the reward distributions used in the behavioural task.
+
+## Parameter recovery
+* **parameter_recovery.py**  
+    simulates behavioural data of one agent, for which the model parameters were sampled from parameter values within Tuckey's Fence bounds of our estimates. Then, it estimates the model parameters of the generated data and saves the generated and estimated model parameters as a new line in a csv file.
+* **bandits11_l2.py**  
+    a file with 100 reward distributions, used as example grids for the simulated agent to sample rewards from. These reward distributions are similar to the ones used in the behavioural experiment, both were created using the same algorithms (using the bivariate(11, 11, 2, np.random.randint(65,86), 5) function of create_grids.py). 
 
     
