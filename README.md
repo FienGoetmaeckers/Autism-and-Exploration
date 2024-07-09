@@ -4,10 +4,14 @@ All scripts for the project "Different exploration strategies along the autism s
 
 ## Behavioural experiment
 All needed code to run the online behavioural experiment described in the paper
+* MAB.html will run the behavioural experiment
+* grid_file.js contains reward distributions
+
 
 ## Analysis
 ### Parameter estimation
 Contains all scripts to read in behavioural data and estimate the model parameters per participant
+
 
 ### Statistical analyses
 R script for conducting statistical analyses on behavioural and modelling data
