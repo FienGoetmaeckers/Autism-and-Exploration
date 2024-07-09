@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Fien Goetmaeckers (based on work by Charley Wu) & Judith Goris">
+    <meta charset="utf-8">
+    <title>The truffle search game</title>
+    <script src="jspsych/jspsych.js"></script>
+
+    <script src="jspsych/plugin-html-keyboard-response.js"></script> <!--to answer with keyboard-->
+    <script src="jspsych/plugin-html-button-response.js"></script> <!-- to answer by pressing buttons-->
+    <script src="jspsych/plugin-survey-multi-choice.js"></script><!-- to offer mc questions-->
+    <script src="jspsych/plugin-image-keyboard-response.js"></script> <!--too include images-->
+    <script src="jspsych/plugin-survey-html-form.js"></script>
+    <script src="jspsych/plugin-html-slider-response.js"></script>
+    <script src="jspsych/plugin-html-mouse-response.js"></script> <!-- developed by Zhang Cheng-->
+    <script src="jspsych/plugin-call-function.js"></script>
+    <script src="jspsych/plugin-preload.js"></script>  <!--to load images at the start of exp-->
+    
+    <script src="grid_file.js"></script>
+    <link href="jspsych/jspsych.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="grid2D.css">
+
+    <script src="help_functions/serverComm.js" type="text/javascript"></script> <!-- to interact with the server -->
+    <script src="help_functions/sprintf.js"></script> <!-- to format variables in a string -->
+    <script src="jspsych/plugin-browser-check.js"></script>
+    <script src="jspsych/plugin-fullscreen.js"></script>
+
+</head>
+<body></body>
+<script>
+    var test = true;
+    var jsPsych = initJsPsych();
+    var timeline = [];
+
+    var speedy = false; // make a quick version of the experiment with only 1 grid for script testing purposes
+
+     /*************************************
+    participant enters: register and assign condition
+    **************************************/
+
+    // progress tracker
+    var progress = parseInt(jsPsych.data.getURLVariable('PRGR')) // get from URL and convert string to int
+    progress += 1 // to advance progress marker by 1 when later redirected to main script
+
+    // randomization of experiment order
+    var randorder = jsPsych.data.getURLVariable('R') // reads ?R=... after html
+
+    // subject ID's
+    var prolificID = jsPsych.data.getURLVariable('PID') // reads ?PROLIFIC_ID=... after html
+    var subjectID = jsPsych.data.getURLVariable('SID')  // reads ?SUBJECT_ID=... after html
+    jsPsych.data.addProperties({subjectID: subjectID}) // add to data
+
+    // get score of experiments 3 and 4 if necessary
+    if (progress == 6) {var score_exp3 = jsPsych.data.getURLVariable('S3')}
+    if (progress == 7) {
+    var score_exp3 = jsPsych.data.getURLVariable('S3')
+    var score_exp4 = jsPsych.data.getURLVariable('S4')
+    }
+
+    // initialize total score
+    var total_score = -1 // change to actual obtained reward bonus in pounds
+    var total_average_reward = 0 //change to actual obtained average reward over all rounds
+
+    /*
+    // register subject on server
+    var register_subject = {
+        type: jsPsychCallFunction,
+        async: true,
+        func: function(done) {
+            serverComm.register_subject(prolificID,
+                function(){ // this is the success callback, the function executes if the subject has a unique id
+                    done(console.log("Participant registered!"))
+                },
+                function(){ // this is the excluded callback, used if the subject's ID is already in the database: show excluded message
+                    done(document.querySelector('body').innerHTML = '<p style="color:white"> Our records indicate that you have already started this experiment. Due to the nature of the experiment, restarting is not permitted.</p><p style="color:black;">If you believe this message is in error, you can contact the researchers at fien.goetmaeckers@ugent.be. Our apologies for the trouble.</p>')
+                },
+                function(){ // this is the failure callback. show technical error message.
+                    done(document.querySelector('body').innerHTML = '<p style="color:white"> Our apologies. There was a technical error on our end while loading the experiment.</p><p style="color:white;">You will not be able to complete the experiment. We are sorry for the trouble.</p>')
+                }
+            )
+        }
+    }
+
+    if (test == false){
+        timeline.push(register_subject);
+    }
+    */
+
+    // test browser: only chrome allowed (and not on mobile device)
+    var browser_test = {
+        type: jsPsychBrowserCheck,
+        inclusion_function: function (data) {
+            return data.browser == 'chrome' && data.mobile === false
+        },
+        exclusion_message: function (data) {
+            if (data.mobile) {document.querySelector('body').innerHTML = '<p style="color:white">You must use a desktop/laptop computer to participate in this experiment.</p>'}
+            else if (data.browser !== 'chrome') {document.querySelector('body').innerHTML = '<p style="color:white">You must use Chrome as your browser to complete this experiment.</p>'}
+        }
+    }
+
+    timeline.push(browser_test) 
+
+    // start time
+    var get_start_time = {
+    type: jsPsychCallFunction,
+    func: function() {
+            start_time = new Date().toLocaleString()
+            start_time = start_time.replace(',', '')
+            jsPsych.data.addProperties({start_time: start_time})
+            }
+        }
+
+    timeline.push(get_start_time)
+
+
+     /*************************************
+    instruction pages
+    **************************************/
+
+    var preload = {
+        type: jsPsychPreload,
+        auto_preload: true,
+        show_detailed_errors: true
+    }
+    timeline.push(preload)
+    // welcome
+    /*var welcome = {
+        type: jsPsychHtmlKeyboardResponse,
+        choices: " ",
+        stimulus: "<p> Welcome! Press space to start! </p>"
+    }
+    timeline.push(welcome)
+    */   
+
+    // fullscreen: change screen to fullscreen
+    var fullscreen = {
+        type: jsPsychFullscreen,
+        fullscreen_mode: true
+    }
+    timeline.push(fullscreen)
+
+    var instructions1 = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: `
+            <h3>Instructions:</h3>
+            <p><b>Please read the following instructions very carefully: </b></p>
+            `,
+        choices: ['Understood']
+    }  
+    var instructions2a = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: `
+            <p> In the following study, you will be a truffle farmer that wants to collect as many truffles as possible. Specifically, you will have to guide your truffle pig to the best location to dig up truffles. <\p>
+            <img src='img/mouse_pig.png' align=CENTER><\img>
+            <img src='img/truffle.PNG' align=CENTER style='height:100px'><\img>
+            <p> You will be brought to different areas of a forest. In each area, you will be able to choose 25 times more specific locations where you can let your pig dig. Each time you click a location, your pig will dig up a certain amount of truffles at that locations. After your 25 digs, we will bring you to another area of the forest.<p>
+            `,
+        choices: ['Understood']
+    }  
+    var instructions2b = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: `
+            <p> Each area starts with a single location that is chosen for you (see example below). You will be able to use your mouse to click and reveal new locations, which will display a number corresponding to the number of truffles your pig dug up in the clicked location. You can also select the same location more than once. </p>
+            <img src='img/beginning_grid.png' align=CENTER style='height:500px;'><\img>
+            `,
+        choices: ['Understood']
+    }  
+    var instructions3 = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: `
+            <p> It is your task to <b>collect as many truffles as possible</b> across all 10 areas. You can earn an additional bonus of up to £1.20, which scales with the average number of truffles you dig up throughout the experiment. 
+                More precisely, you will be rewarded an extra bonus of £0.17 per 10 truffles that you dig up on average over this entire task. </p>
+            `,
+        choices: ['Understood']
+    }  
+    var instructions4 = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: `
+            <p><b>Important!</b> Truffles are clustered, such that locations with a lot of truffles tend to appear close to each other. </p>
+            <p>Below, we show two examples of how an area of truffles can look like, with the darker locations indicating more truffles.</p>
+            <br><br>
+            
+            <img src='img/example_lambda8.PNG' style= 'width:500px; height:500px'></img>
+            <img src='img/example_lambda8_b.PNG' style= 'width:500px; height:500px'></img>
+            </div>
+            `,
+        choices: ['Understood']
+    }  
+
+    var comprehension_questions = {
+        type: jsPsychSurveyMultiChoice,
+        stimulus: `
+        <p>We are first going to check whether you understand the instructions.</p>
+        <p>Please answer the following questions before proceeding.</p>
+        `,
+        questions: [
+            {
+                prompt: "What is your task in this study?",
+                name: 'goal',
+                options: ['Learn colours', 'Accumulate as many truffles as possible', 'Learn which cell contains the most truffles', 'I do not know'],
+                required: true,
+                correct: 'Accumulate as many truffles as possible'
+            },
+            {   
+                prompt: "How are the truffles distributed?",
+                name: 'correlation',
+                options: ['Random', 'Areas with a lot of truffles are never next to each other', 'Areas with a lot of truffles are always nearby', 'Areas with a lot of truffles tend to appear close to each other'],
+                required: true,
+                correct: 'Areas with a lot of truffles tend to appear close to each other'
+            }
+        ],
+        button_label : 'Check answers',
+        data: {
+            task: 'comprehension_questions'
+        }
+    }
+
+    var comprehension_check = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: function(){
+            var trial = jsPsych.data.get().filter({task: 'comprehension_questions'}).last();
+            var feedback = ''
+            if ((trial.values()[0].response.goal == 'Accumulate as many truffles as possible') & (trial.values()[0].response.correlation == 'Areas with a lot of truffles tend to appear close to each other')){
+                feedback += `<p>Great! You've answered correctly on the questions and are now able to start the experiment.</p>
+                                <p>Press any key to continue.</p>`;  
+                jsPsych.data.addProperties({redo: false}); 
+            } else {
+                feedback += `<p>That was not correct. We will show you the instructions again. Press any key to continue.</p>`;
+                jsPsych.data.addProperties({redo: true});
+            }
+            return feedback;
+        },
+        data: {
+            type : 'comprehension_check'
+        }
+    }
+    var intro_slides = {
+        timeline: [instructions1, instructions2a, instructions2b, instructions3, instructions4, comprehension_questions, comprehension_check]
+    }
+     
+    var redo_trials = {
+        timeline: [intro_slides],
+        loop_function: function(data){
+            var redos = jsPsych.data.get().filter({type: "comprehension_check"}).select('redo').values
+            console.log(redos[redos.length-1]);
+            return redos[redos.length-1];
+        }
+    }
+
+    var explain = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: ` <p> <b>Summarized Instructions:</b></p>
+                        <p><b>I.</b> You will see an area with 11x11 locations. When you click on a location, your pig will dig and find a certain number of truffles and its value will be displayed. </p>
+                        <p><b>II.</b> Locations can be clicked more than once. The most recently dug up number of truffles will be displayed, while the history of revealed amounts can be viewed by hovering over the location.</p>
+                        <p><b>III.</b> The number of truffles dug up in a specific location depends upon where it is located, with neighbouring locations tending to have similar numbers.  </p>
+                        <p><b>IV.</b> Below each area, you will see how many digs you have left, the number of areas left to explore, and the average number of truffles you have accumulated thus far.</p>
+                        <p><b>V.</b> There are 10 different areas with 25 digs in each.</p>
+                        <p> Press space to begin <\p>
+            `,
+        choices: " "
+    }
+
+
+    var intro = {
+        timeline: [redo_trials, explain]
+    }
+    timeline.push(intro);
+
+    /*************************************
+    set up the experiment
+    **************************************/
+    if (speedy ==  true) {var nr_blocks = 3} // only for testing 
+    else {var nr_blocks = 10} //so 10 smooth
+    var nr_trials = 25;
+    var nr_initial_opened = 1;
+    var start_row_list = [0, 11, 2*11, 3*11, 4*11, 5*11, 6*11, 7*11, 8*11, 9*11, 10*11];
+    var end_row_list = [10, 10+11, 10+2*11, 10+3*11, 10+4*11, 10+5*11, 10+6*11, 10+7*11, 10+8*11, 10+9*11];
+    
+    //first we define which nr_blocks grids are going to be used
+    var all_grid_nrs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99]
+    
+    var set_up = {
+        type: jsPsychCallFunction,
+        func: function(){
+            
+            var grid_nrs =  jsPsych.randomization.sampleWithoutReplacement(all_grid_nrs, nr_blocks);
+            console.log('The chosen grids are:', grid_nrs);
+            jsPsych.data.addProperties({grid_nrs: grid_nrs});
+
+            //we define for each of the blocks which cell is opened at start
+            var all_cells = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120];
+            
+            //now we have to define which cells are initially open per grid
+            var opened_cells_per_block = [];
+            //and what their values are
+            var opened_rewards_per_block = [];
+            for (let n=0; n<nr_blocks; n++){
+                opened_cells_per_block.push(jsPsych.randomization.sampleWithoutReplacement(all_cells, nr_initial_opened));
+                opened_rewards = []; //this is a list of lists, for which each list remembers which rewards have been observed per cell
+                var opened_cells = opened_cells_per_block[n];
+                console.log('These cells are initially opened:', opened_cells);
+                for (let i=0; i<121; i++){
+                    opened_rewards.push([]); //we first make the opened_reward list
+                } 
+                for (let i=0; i<opened_cells.length; i++){ //we then add the observed rewards of all the initially opened cells to it
+                    fill_opened_rewards(opened_cells[i],  eval('grid' + grid_nrs[n])); 
+                }
+                opened_rewards_per_block.push(opened_rewards);
+            }
+            jsPsych.data.addProperties({opened_cells_per_block: opened_cells_per_block, opened_rewards_per_block: opened_rewards_per_block})
+        },
+        data: {
+            type: 'set_up'
+        }
+    }
+    timeline.push(set_up);
+
+
+    function fill_opened_rewards(cell, reward_list){
+        value = jsPsych.randomization.sampleNormal(reward_list[cell], 1)
+        opened_rewards[cell].push(value);
+        return value;
+    }
+    
+    var block_nr = 0;
+
+    /*************************************
+    all functions needed to update the window
+    **************************************/
+
+    /* this function calculates which colour each revealed tile has to be 
+    (based on the mean of all the observerd rewards) */
+    function colour_defining(reward){
+        if (Math.round(reward) >=0 && Math.round(reward) <100){
+            colour = colour_map[Math.round(reward)];
+        }
+        else if (Math.round(reward) < 0){
+            colour = colour_map[0];
+        }
+        else if (Math.round(reward)>=100){
+            colour = colour_map[-1]
+        }
+        return colour;
+    }
+    
+    /* this function defines trial per trial what the grid should look like */
+    function grid(opened_cells, opened_rewards, block_nr){
+        //first we check which area in the forest we need (1-8)
+        if (block_nr < 8){
+            var image_nr = block_nr + 1;
+        }
+        else {
+            var image_nr = block_nr - 8 + 1;
+        }
+        var area = 'gridA_'.concat(image_nr);
+        console.log(area);
+        var grid = `<table id = ${area} class='grid' table-layout='fixed'>`
+   
+        for (cell = 0; cell < 121; cell++){
+            if (start_row_list.includes(cell)){
+                grid = grid + "<tr>"
+            }
+            if (opened_cells.includes(cell)){
+                //console.log(cell)
+                reward = opened_rewards[cell][opened_rewards[cell].length-1]
+
+                if (opened_rewards[cell].length > 1){ //if this cell has been sampled before
+                    his = opened_rewards[cell].slice(0,-1); //history of this cell
+                    mean_reward = his.reduce((a, b) => a + b, 0) / his.length;
+                    colour = colour_defining(mean_reward);
+                    his_string = ``
+                    for (let i=0; i<his.length; i++){
+                        his_string = his_string + `${Math.round(his[i]).toString()}   `;
+                    }
+                    //console.log(his_string);
+                    grid = grid + `<td id = ${cell} style = 'background-color: ${colour}; width: 25px' ><div class="tooltip">${Math.round(reward)}<span class="tooltiptext">${his_string}</span></div></td>`
+                }
+                else {
+                    grid = grid + `<td id = ${cell} style = 'background-color: ${colour_defining(reward)}; width: 25px' >${Math.round(reward)}</td>`
+                }
+                
+            } else {
+                grid = grid + `<td id = ${cell}>&nbsp;</td>` //hidden cells
+            }
+        
+            if (end_row_list.includes(cell)){
+                grid = grid + "</tr>"
+            }
+        }
+        grid = grid + "</table>"
+    return grid;
+    }
+   
+    var id_array = [];
+    for (let i=0; i<121; i++){
+        id_array.push(i.toString())
+    }
+
+    /********************************
+    The trials of the experiment
+    ************************************/
+    //click on a cell, update grid and score feedback
+    var trial_mouse = {
+        type: jsPsychHtmlMouseResponse,
+        prompt: function(){
+            return score(trial_nr, total_reward, block_nr);
+        },
+        stimulus: function(){
+            return grid(opened_cells, opened_rewards, block_nr);
+        },
+        choices: id_array,
+        tracking_elements: id_array,
+        response_ends_trial: true,
+        on_finish: function(data){
+            var cell = parseInt(data.selected_choice);
+            console.log(`opened cell = ${cell}`); 
+            opened_cells.push(cell);
+            reward = fill_opened_rewards(cell, reward_list);
+            console.log(reward);
+            total_reward = (total_reward.valueOf() + Math.round(reward.valueOf())).valueOf();
+            data.average_reward = total_reward/(trial_nr + 1 + nr_initial_opened);
+            console.log(`average reward = ${data.average_reward}`);
+            //save all the needed properties
+            data.trial_nr = trial_nr;
+            data.block_nr = block_nr;
+            data.reward = reward;
+            data.opened_cells = opened_cells;
+            data.grid = grid_nr;
+            data.initial_opened = opened_cells[0];
+            trial_nr += 1;
+        },
+        data: {
+            type: 'cell'
+        }
+    }
+
+    var trial_nr = 0;
+    //reward_list = eval('grid' + grid_nrs[block_nr]);
+    //opened_cells = opened_cells_per_block[block_nr];
+    //opened_rewards = opened_rewards_per_block[block_nr];
+    var average_reward;
+    total_reward = 0;
+    /*
+    for (let i=0; i<121; i++){
+        total_reward += Math.round(Number(opened_rewards[i]));
+    }*/
+    //feedback shown at the end of a round (when a grid is solved)
+    var feedback_grid = {
+        type: jsPsychHtmlButtonResponse,
+        prompt: function(){
+            average_reward = jsPsych.data.get().last(1).values()[0].average_reward;
+            total_average_reward += average_reward;
+            console.log(total_average_reward);
+            return feedback(average_reward);
+        },
+        stimulus: function(){
+            return grid(opened_cells, opened_rewards, block_nr);
+        },
+        choices: ['Continue to next grid']
+
+    }
+    
+    function score(trial_nr, total_reward, block_nr){
+        var average_reward = total_reward/(trial_nr + nr_initial_opened);
+        return `<div><center><b><div id="scoretotal">Average number of truffles dug up in this area: ${Math.round(average_reward)}</div></b></center> </font>
+            <center><div id="remaining1">Number of areas left: <b>${nr_blocks-block_nr}</b></div></center> 
+            <center><div id="remaining2">Number of digs left: <b>${nr_trials-trial_nr}</b></div></center> 
+            <div style="width:350px;margin:0 auto"></div>` 
+        
+    }
+
+    function feedback(average_reward){
+        return `<div><center><b><div>You ran out of digs for this area.</div></b></center> </font>
+            <center><div>You collected ${Math.round(average_reward)} truffles on average.</b></div></center>
+            <div style="width:350px;margin:0 auto"></div>`
+    }
+    
+    //to solve one grid = one round
+    var block = {
+        timeline: [trial_mouse],
+        repetitions: nr_trials
+    }
+
+    //all grids + feedback combined
+    var experiment = { //experiment loops over the blocks
+        timeline: [block, feedback_grid],
+        repetitions: nr_blocks,
+        on_timeline_start: function(){
+            console.log('start on_start of block')
+            grid_nr = jsPsych.data.get().filter({type: "set_up"}).select('grid_nrs').values[0][block_nr];
+            console.log('grid nr ', grid_nr);
+            trial_nr = 0;
+            reward_list = eval('grid' + jsPsych.data.get().filter({type: "set_up"}).select('grid_nrs').values[0][block_nr]);
+            opened_cells = jsPsych.data.get().filter({type: "set_up"}).select('opened_cells_per_block').values[0][block_nr];
+            console.log(opened_cells);
+            opened_rewards = jsPsych.data.get().filter({type: "set_up"}).select('opened_rewards_per_block').values[0][block_nr];
+            total_reward = 0;
+            for (let i=0; i<121; i++){
+                total_reward += Math.round(Number(opened_rewards[i]));
+            }
+        },
+        on_timeline_finish: function(){
+           block_nr += 1;
+        }
+    }
+
+    timeline.push(experiment);
+
+    /********************************************
+     experiment is over: save data and send the participants home
+     ********************************************/
+
+     // get end time
+    var get_end_time = {
+    type: jsPsychCallFunction,
+    func: function() {
+            end_time = new Date().toLocaleString()
+            end_time = end_time.replace(',', '')
+            jsPsych.data.addProperties({end_time: end_time})
+        }
+    }
+
+    timeline.push(get_end_time)
+
+    //save the data
+    var save_data = {
+        type: jsPsychCallFunction,
+        async: true,
+        func: function(done){
+            data=jsPsych.data.get().filter({type: "cell"});
+            console.log(data.values());
+            done(serverComm.save_data(data.values()))
+        }
+    }
+
+    if (test == false){
+        timeline.push(save_data);
+    }
+    
+    // goodbye + waiting until data is saved
+    var goodbye = {
+        type: jsPsychHtmlKeyboardResponse,
+        /*stimulus: "This is the end of the experiment. Thank you for participating!"  + '<br>' + 
+                "Please wait for 10 seconds while your data is being saved."  + '<br>' + 
+                "Make sure to keep this window open until you're redirected to Prolific."   + '<br>' + 
+                "You will be redirected automatically in 10 seconds.",*/
+        stimulus: "This is the end of the experiment. Feel free to close this window.",
+        trial_duration: 20000,
+        choices: 'NO_KEYS'
+    }
+
+    timeline.push(goodbye);
+
+    // redirecting participants
+    var redirect= {
+        type: jsPsychCallFunction,
+        func: function() {
+            console.log(total_average_reward);
+            total_score = (6/350*(total_average_reward)/nr_blocks - 3/35) * 100
+            console.log(total_score);
+            // prepare redirect link
+            if (randorder == 3) { // if it's the first exp of this session
+            link = sprintf("https://braemlab.ugent.be/Judith/CognFlexCorrelationStudy/2_main_s2/main_s2.html?PID=%s&PRGR=%s&R=%s&S3=%s&S4=-100&S5=-100", prolificID, progress, randorder, total_score)
+            }
+            if (randorder == 4) { // if it's the first exp of this session
+            link = sprintf("https://braemlab.ugent.be/Judith/CognFlexCorrelationStudy/2_main_s2/main_s2.html?PID=%s&PRGR=%s&R=%s&S3=%s&S4=-100&S5=-100", prolificID, progress, randorder, total_score)
+            }
+            if (randorder == 1) { // if it's the second exp of this session
+            link = sprintf("https://braemlab.ugent.be/Judith/CognFlexCorrelationStudy/2_main_s2/main_s2.html?PID=%s&PRGR=%s&R=%s&S3=%s&S4=%s&S5=-100", prolificID, progress, randorder, score_exp3, total_score)
+            }
+            if (randorder == 6) { // if it's the second exp of this session
+            link = sprintf("https://braemlab.ugent.be/Judith/CognFlexCorrelationStudy/2_main_s2/main_s2.html?PID=%s&PRGR=%s&R=%s&S3=%s&S4=%s&S5=-100", prolificID, progress, randorder, score_exp3, total_score)
+            }
+            if (randorder == 2) { // if it's the third exp of this session
+            link = sprintf("https://braemlab.ugent.be/Judith/CognFlexCorrelationStudy/2_main_s2/main_s2.html?PID=%s&PRGR=%s&R=%s&S3=%s&S4=%s&S5=%s", prolificID, progress, randorder, score_exp3, score_exp4, total_score)
+            }
+            if (randorder == 5) { // if it's the third exp of this session
+            link = sprintf("https://braemlab.ugent.be/Judith/CognFlexCorrelationStudy/2_main_s2/main_s2.html?PID=%s&PRGR=%s&R=%s&S3=%s&S4=%s&S5=%s", prolificID, progress, randorder, score_exp3, score_exp4, total_score)
+            }
+            window.location = link // redirect the participant to the main experiment script
+        }
+    }
+    timeline.push(redirect);
+
+    jsPsych.run(timeline);
+    </script>       
+</html>
