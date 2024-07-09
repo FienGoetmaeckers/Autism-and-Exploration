@@ -10,7 +10,7 @@
 
 
 ## Creating reward distributions
-* **create_grids.py**
+* **create_grids.py**  
     used to create the reward distributions used in the behavioural task. 
 
     
