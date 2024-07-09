@@ -7,7 +7,9 @@ All scripts for the project "Different exploration strategies along the autism s
 All needed code to run the online behavioural experiment described in the paper
 * MAB.html will run the behavioural experiment
 * grid_file.js contains reward distributions
-If you want to try out the truffle task, you can access it online here: https://braemlab.ugent.be/Fien/Correlation_N/MAB.html
+
+If you want to try out the truffle task, you can access it online here: https://braemlab.ugent.be/Fien/Correlation_N/MAB.html 
+
 this version will not save your data
 
 
