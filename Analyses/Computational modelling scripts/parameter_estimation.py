@@ -190,7 +190,8 @@ def NLL(W, L, nr_trials, l_fit, beta, tau, initial_opened, selected_choice, rewa
         
         for trial_nr in range(0, nr_trials):
             choice = selected_choice[round_nr*nr_trials + trial_nr]
-            LL += log_probability(W, L, choice, opened_cells2D, observations, l_fit, beta, tau)
+            prior_choice_number = opened_cells[-1] 
+            LL += log_probability(W, L, choice, opened_cells2D, observations, l_fit, beta, tau, prior_choice_number)
             
             #update the observations before moving on to the next 
             opened_cells.append(choice)
@@ -204,7 +205,7 @@ def NLL(W, L, nr_trials, l_fit, beta, tau, initial_opened, selected_choice, rewa
 functions needed to calculate the NLL
 '''
 #more stable if we use the log_softmax function of scipy instead of calculing P our selves and then logging it
-def log_probability(W, L, choice, opened_cells2D, observations, l_fit, beta, tau):
+def log_probability(W, L, choice, opened_cells2D, observations, l_fit, beta, tau, tile_number):
     m, s = GP(observations, W, L, l_fit, opened_cells2D)
     UCB = [m[i] + beta * s[i] for i in range(0, W*L)]
     if localized == True:
