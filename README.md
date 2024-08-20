@@ -1,6 +1,6 @@
 # Autism-and-Exploration
 All scripts for the project "Different exploration strategies along the autism spectrum: Diverging effects of autism diagnosis and autism traits"
-* link to preprint will follow later
+* link to preprint https://osf.io/preprints/psyarxiv/3mvxk 
 * preregistration https://osf.io/mz3h5 
 
 ## Behavioural experiment
