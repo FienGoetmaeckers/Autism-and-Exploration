@@ -15,7 +15,7 @@ library(sjPlot)
 #step 1: read in all the data, make sure only relevant data is used
 ###
 
-setwd("C:/Users/fgoetmae/OneDrive - UGent/Documents/Projects/Correlation/data")
+setwd("Data")
 data <- read.csv(file = "data_f.csv")
 info <- read.csv(file = "info_f.csv")
 quest <- read.csv(file = "question_filtered.csv")
@@ -200,8 +200,8 @@ data["IQ"] <- IQ
 data["PAQ"] <- PAQ
 #for lindear trends, we use the logdistance and the logtrial
 #add the log of trial_nr and distance to the dataframes
-data["logtrial"] <- log(data["trial_nr"]+0.00001,10) 
-data["logdistance"] <- log(data["distance"]+0.00001, 10)
+data["logtrial"] <- log(data["trial_nr"]+1.0,10) 
+data["logdistance"] <- log(data["distance"]+1.0, 10)
 data["logdistance_prev"] <- log(data["distance_prev"]+0.00001, 10)
 
 options(contrasts = c("contr.sum", "contr.poly"))
@@ -210,6 +210,7 @@ data$group <- factor(data$group, levels = c("control", "autism"))
 
 #rescale factors for L(M)Models
 info_Bfilter <- info[!(info$group == 'control' & info$AQbin > 32),] #delete all controls with too high AQbin
+info_Bfilter$gender <- ifelse(info_Bfilter$gender == "Other" | info_Bfilter$gender == "Prefer not to say", "Female", info_Bfilter$gender)
 info_Bfilter["gender"] <- as.factor(info_Bfilter$gender)
 info_Bfilter["age"] <- scale(info_Bfilter$age)
 info_Bfilter["SDS"] <- scale(info_Bfilter$SDS)
@@ -218,7 +219,7 @@ info_Bfilter["SRS"] <- scale(info_Bfilter$SRS)
 info_Bfilter["PAQ"] <- scale(info_Bfilter$PAQ)
 
 info_Wfilter <- info[info$group == 'control',]
-info_Wfilter <- info_Wfilter[info_Wfilter$gender != "Prefer not to say",]
+info_Wfilter$gender <- ifelse(info_Wfilter$gender == "Other" | info_Wfilter$gender == "Prefer not to say", "Female", info_Wfilter$gender)
 info_Wfilter["PCA"] <- scale(info_Wfilter$PCA)
 info_Wfilter["gender"] <- as.factor(info_Wfilter$gender)
 info_Wfilter["age"] <- scale(info_Wfilter$age)
@@ -228,6 +229,7 @@ info_Wfilter["SRS"] <- scale(info_Wfilter$SRS)
 info_Wfilter["PAQ"] <- scale(info_Wfilter$PAQ)
 
 data_Bfilter <- data[data$subjectID %in% info_Bfilter$subjectID,]
+data_Bfilter$gender <- ifelse(data_Bfilter$gender == "Other" | data_Bfilter$gender == "Prefer not to say", "Female", data_Bfilter$gender)
 data_Bfilter["gender"] <- as.factor(data_Bfilter$gender)
 data_Bfilter["age"] <- scale(data_Bfilter$age)
 data_Bfilter["SDS"] <- scale(data_Bfilter$SDS)
@@ -238,9 +240,8 @@ data_Bfilter["trial_nr"] <- scale(data_Bfilter$trial_nr)
 data_Bfilter["logtrial"] <- scale(data_Bfilter$logtrial)
 data_Bfilter["block_nr"] <- scale(data_Bfilter$block_nr)
 
-
 data_Wfilter <- data[data$subjectID %in% info_Wfilter$subjectID,]
-data_Wfilter <- data_Wfilter[data_Wfilter$gender != "Prefer not to say",]
+data_Wfilter$gender <- ifelse(data_Wfilter$gender == "Other" | data_Wfilter$gender == "Prefer not to say", "Female", data_Wfilter$gender)
 data_Wfilter["PCA"] <- scale(data_Wfilter$PCA)
 data_Wfilter["gender"] <- as.factor(data_Wfilter$gender)
 data_Wfilter["age"] <- scale(data_Wfilter$age)
@@ -253,7 +254,7 @@ data_Wfilter["logtrial"] <- scale(data_Wfilter$logtrial)
 data_Wfilter["block_nr"] <- scale(data_Wfilter$block_nr)
 
 
-setwd("../output/NHB/figures")
+setwd("../output/figures")
 ####
 #extra informative figures
 ###
@@ -294,9 +295,9 @@ ggplot() +
   theme_classic()
 ggsave("Dprev(trial).png", device = "png", height = 5/0.8, width = 6/0.8)
 ggplot() +
-  geom_point(data = d, aes(x = trial_nr, y = x), alpha = 0.2, position = position_jitter(width=1,height=.1)) +  # Individual data points
-  geom_line(data = m, aes(x = trial_nr, y = mean_x), color = "blue") +  # Mean line
-  geom_ribbon(data = m, aes(x = trial_nr, ymin = lower_ci, ymax = upper_ci), fill = "blue", alpha = 0.3) +  # Confidence interval ribbon
+  geom_point(data = d, aes(x = trial_nr, y = x), color = "grey", alpha = 0.2, position = position_jitter(width=1,height=.1)) +  # Individual data points
+  geom_line(data = m, aes(x = trial_nr, y = mean_x), color = "darkolivegreen") +  # Mean line
+  geom_ribbon(data = m, aes(x = trial_nr, ymin = lower_ci, ymax = upper_ci), fill = "darkolivegreen", alpha = 0.3) +  # Confidence interval ribbon
   theme_classic() + scale_x_log10() + scale_y_log10()
 ggsave("DprevLOGLOG(trial).png", device = "png", height = 5/0.8, width = 6/0.8)
 #distance from hv cell
@@ -311,9 +312,9 @@ ggplot() +
   theme_classic()
 ggsave("D(trial).png", device = "png", height = 5/0.8, width = 6/0.8)
 ggplot() +
-  geom_point(data = d, aes(x = trial_nr, y = x), alpha = 0.2, position = position_jitter(width=1,height=.1)) +  # Individual data points
-  geom_line(data = m, aes(x = trial_nr, y = mean_x), color = "blue") +  # Mean line
-  geom_ribbon(data = m, aes(x = trial_nr, ymin = lower_ci, ymax = upper_ci), fill = "blue", alpha = 0.3) +  # Confidence interval ribbon
+  geom_point(data = d, aes(x = trial_nr, y = x), color = "grey", alpha = 0.2, position = position_jitter(width=1,height=.1)) +  # Individual data points
+  geom_line(data = m, aes(x = trial_nr, y = mean_x), color = "darkolivegreen") +  # Mean line
+  geom_ribbon(data = m, aes(x = trial_nr, ymin = lower_ci, ymax = upper_ci), fill = "darkolivegreen", alpha = 0.3) +  # Confidence interval ribbon
   theme_classic() + scale_x_log10() + scale_y_log10()
 ggsave("DLOGLOG(trial).png", device = "png", height = 5/0.8, width = 6/0.8)
 
@@ -379,14 +380,15 @@ ggsave("IQ(group).png", device = "png", height = 5, width = 6)
 ###
 #you can easily assess this by using a LMM to see interaction effect of previous_reward and IQ on distance_consecutive
 
-data_temp <- data[data$gender != "NA" & data$gender != "Prefer not to say",]
+data_temp <- data
+data_temp$gender <- ifelse(data_temp$gender == "Other" | data_temp$gender == "Prefer not to say", "Female", data_temp$gender)
 #scale needed factors
 data_temp["age"] = scale(as.numeric(data_temp$age))
 data_temp["gender"] = as.factor(data_temp$gender)
 data_temp["prev_reward"] = scale(as.numeric(data_temp$prev_reward))
 data_temp["IQ"] = scale(as.numeric(data_temp$IQ))
 
-modelfull <- lmer(distance_prev ~ (prev_reward + IQ + age + gender)^2 + (1|subjectID), data = data_temp)
+modelfull <- lmer(distance_prev ~ (prev_reward + IQ + gender + age)^2 + (1+prev_reward|subjectID), data = data_temp, control = lmerControl(optimizer = "bobyqa"))
 summary(modelfull)
 png(file="D(prevousIQ).png", height = 5*130, width = 6*130)
 plot(effect("prev_reward:IQ", modelfull), ci.style="bands",
@@ -396,6 +398,19 @@ plot(effect("prev_reward:IQ", modelfull), ci.style="bands",
      yaxp = c(0, 2, 4, 6, 8),
      xlab="Previous reward", ylab="Distance from previous click", colors=c("grey", "darkcyan", "cyan", "chartreuse", "darkgreen"))
 dev.off()
+
+###
+###
+#Intermezzo: assessing effect of covariates
+###
+###
+#for group
+modelfull <- glm(group ~ (ICAR_total + SDS + SRS + PAQ)^2 + age + gender, data = info_Bfilter, family = binomial)
+summary(modelfull)
+#for traits
+modelfull <- glm(PCA ~ (ICAR_total + SDS + SRS + PAQ)^2 + age + gender, data = info_Wfilter, family = gaussian)
+summary(modelfull)
+
 
 ###
 ###
@@ -423,11 +438,11 @@ plot_dfW <- name_W %>% summarise(Novclicks = mean(new_click), HVclicks = mean(HV
 #Novel clicks
 ###
 #between group
-modelfull <- lmer(new_click ~ (group + gender + age + trial_nr + block_nr)^2 + (1|subjectID), data = data_Bfilter)
+modelfull <- glmer(new_click ~ (group + trial_nr + SDS + SRS + PAQ)^2 + gender + age + (1+trial_nr|subjectID), data = data_Bfilter, family = binomial, control = glmerControl(optimizer = "bobyqa"))
 summary(modelfull)
 z <- as.data.frame(effect("group:trial_nr", modelfull))
 ggplot() +
-  geom_point(data = plot_dfB, aes(x = trial_nr, y = Novclicks, color = group, size = 1), show.legend = FALSE) +
+  #geom_point(data = plot_dfB, aes(x = trial_nr, y = Novclicks, color = group, size = 1), show.legend = FALSE) +
   geom_line(data = z, aes(x = trial_nr, y = fit, group = group, color = group), size = 1, show.legend = FALSE) +
   geom_ribbon(data = z, aes(x = trial_nr, ymin = lower, ymax = upper, group = group, fill = group), alpha = 0.3, show.legend = FALSE) +
   labs(x = "Trial Number", y = "Fit", color = "Group", fill = "Group") +
@@ -435,13 +450,13 @@ ggplot() +
 ggsave("Nov(trial)group.png", device = "png", height = 5, width = 6)
 
 #within group
-modelfull <- lmer(new_click ~ (gender + age + trial_nr + block_nr + PCA)^2 + (1|subjectID), data = data_Wfilter)
+modelfull <- glmer(new_click ~ (PCA + trial_nr + SDS + SRS + PAQ)^2 + gender + age + (1+trial_nr|subjectID), data = data_Wfilter, family = binomial, control = glmerControl(optimizer = "bobyqa"))
 summary(modelfull)
-z <- as.data.frame(effect("trial_nr:PCA", modelfull))
+z <- as.data.frame(effect("PCA:trial_nr", modelfull))
 ggplot() +
-  geom_point(data = plot_dfW, aes(x = trial_nr, y = Novclicks, color = as.factor(PCAbin), size = 0.7), show.legend = FALSE) +
+  #geom_point(data = plot_dfW, aes(x = trial_nr, y = Novclicks, color = as.factor(PCAbin), size = 0.7), show.legend = FALSE) +
    geom_line(data = z, aes(x = trial_nr, y = fit, group = PCA, color = as.factor(PCA)), size = 1, show.legend = FALSE) +
-   geom_ribbon(data = z, aes(x = trial_nr, ymin = lower, ymax = upper, group = PCA, fill = as.factor(PCA)), alpha = 0.3, show.legend = FALSE) +
+   geom_ribbon(data = z, aes(x = trial_nr, ymin = lower, ymax = upper, group = PCA, fill = as.factor(PCA)), alpha = 0.18, show.legend = TRUE) +
    labs(x = "Trial Number", y = "Number of novel clicks", color = "PCA", fill = "PCA") +
    theme_classic() + scale_color_manual(values = c("deepskyblue", "grey", "yellow", "orange", "darkorange")) + scale_fill_manual(values=c("deepskyblue", "grey", "yellow", "orange", "darkorange")) 
 ggsave("Nov(trial)PCA.png", device = "png", height = 5, width = 6)
@@ -450,11 +465,11 @@ ggsave("Nov(trial)PCA.png", device = "png", height = 5, width = 6)
 #High value clicks
 ###
 #between group
-modelfull <- lmer(HV_click ~ (group + gender + age + trial_nr + block_nr)^2 + (1|subjectID), data = data_Bfilter)
+modelfull <- glmer(HV_click ~ (group + trial_nr + SDS + SRS + PAQ)^2 + gender + age + (1+trial_nr|subjectID), data = data_Bfilter, family = binomial, control = glmerControl(optimizer = "bobyqa"))
 summary(modelfull)
 z <- as.data.frame(effect("group:trial_nr", modelfull))
 ggplot() +
-  geom_point(data = plot_dfB, aes(x = trial_nr, y = HVclicks, color = group, size = 1), show.legend = FALSE) +
+  #geom_point(data = plot_dfB, aes(x = trial_nr, y = HVclicks, color = group, size = 1), show.legend = FALSE) +
   geom_line(data = z, aes(x = trial_nr, y = fit, group = group, color = group), size = 1, show.legend = FALSE) +
   geom_ribbon(data = z, aes(x = trial_nr, ymin = lower, ymax = upper, group = group, fill = group), alpha = 0.3, show.legend = FALSE) +
   labs(x = "Trial Number", y = "Number of high value clicks", color = "Group", fill = "Group") +
@@ -462,13 +477,13 @@ ggplot() +
 ggsave("HV(trial)group.png", device = "png", height = 5, width = 6)
 
 #within group
-modelfull <- lmer(HV_click ~ (gender + age + trial_nr + block_nr + PCA)^2 + (1|subjectID), data = data_Wfilter)
+modelfull <- glmer(HV_click ~ (PCA + trial_nr + SDS + SRS + PAQ)^2 + gender + age + (1+trial_nr|subjectID), data = data_Wfilter, family = binomial, control = glmerControl(optimizer = "bobyqa"))
 summary(modelfull)
-z <- as.data.frame(effect("trial_nr:PCA", modelfull))
+z <- as.data.frame(effect("PCA:trial_nr", modelfull))
 ggplot() +
-  geom_point(data = plot_dfW, aes(x = trial_nr, y = HVclicks, color = as.factor(PCAbin), size = 0.7), show.legend = FALSE) +
+  #geom_point(data = plot_dfW, aes(x = trial_nr, y = HVclicks, color = as.factor(PCAbin), size = 0.7), show.legend = FALSE) +
   geom_line(data = z, aes(x = trial_nr, y = fit, group = PCA, color = as.factor(PCA)), size = 1, show.legend = FALSE) +
-  geom_ribbon(data = z, aes(x = trial_nr, ymin = lower, ymax = upper, group = PCA, fill = as.factor(PCA)), alpha = 0.3, show.legend = FALSE) +
+  geom_ribbon(data = z, aes(x = trial_nr, ymin = lower, ymax = upper, group = PCA, fill = as.factor(PCA)), alpha = 0.18, show.legend = FALSE) +
   labs(x = "Trial Number", y = "Number of high value clicks", color = "PCA", fill = "PCA") +
   theme_classic() + scale_color_manual(values = c("deepskyblue", "grey", "yellow", "orange", "darkorange")) + scale_fill_manual(values=c("deepskyblue", "grey", "yellow", "orange", "darkorange")) 
 ggsave("HV(trial)PCA.png", device = "png", height = 5, width = 6)
@@ -483,43 +498,55 @@ ggsave("HV(trial)PCA.png", device = "png", height = 5, width = 6)
 ###
 
 #between group
-modelfull <- lmer(logdistance ~ (group + gender + age + logtrial + block_nr)^2 + (1|subjectID), data = data_Bfilter)
+modelfull <- lmer(logdistance ~ (group + logtrial + block_nr + SDS + SRS + PAQ)^2 + gender + age + (1+logtrial*block_nr|subjectID), data = data_Bfilter, control = lmerControl(optimizer = "bobyqa"))
 summary(modelfull)
-png(file="D(trialgroup).png", height = 5*130, width = 6*130)
-plot(effect("group:logtrial", modelfull), ci.style="bands",
-     multiline=T, lines=list(-3, -2, -1, 0, 1, 2, 3), key.args = list(x = 0.7, y = 0.62, corner = c(0.5, -0.4), cex = 0.5), 
-     xlab="Trial", ylab="Distance of high value click", colors = c("grey", "orange"))
-dev.off()
+z <- as.data.frame(effect("group:logtrial", modelfull))
+ggplot() +
+  #geom_point(data = plot_dfB, aes(x = trial_nr, y = HVclicks, color = group, size = 1), show.legend = FALSE) +
+  geom_line(data = z, aes(x = logtrial, y = fit, group = group, color = group), size = 1, show.legend = FALSE) +
+  geom_ribbon(data = z, aes(x = logtrial, ymin = lower, ymax = upper, group = group, fill = group), alpha = 0.3, show.legend = FALSE) +
+  labs(x = "Log trial Number", y = "Distance from high value cell", color = "Group", fill = "Group") +
+  theme_classic() + ylim(0.05,0.75) + scale_fill_manual(values=c("grey", "orange")) + scale_color_manual(values = c("grey", "orange"))
+ggsave("D(trialgroup).png", device = "png", height = 5, width = 6)
 
 #within group
-modelfull <- lmer(logdistance ~ (gender + age + logtrial + block_nr + PCA)^2 + (1|subjectID), data = data_Wfilter)
+modelfull <- lmer(logdistance ~ (PCA + logtrial + block_nr + SDS + SRS + PAQ)^2 + gender + age + (1+logtrial*block_nr|subjectID), data = data_Wfilter, control = lmerControl(optimizer = "bobyqa"))
 summary(modelfull)
-png(file="D(trialPCA).png", height = 5*130, width = 6*130)
-plot(effect("logtrial:PCA", modelfull), ci.style="bands",
-     multiline=T, lines=list(-3, -2, -1, 0, 1, 2, 3), key.args = list(x = 0.7, y = 0.62, corner = c(0.5, -0.4), cex = 0.5), 
-     xlab="Trial", ylab="Distance of high value click", colors=c("deepskyblue", "grey", "yellow", "orange", "darkorange"))
-dev.off()
+z <- as.data.frame(effect("PCA:logtrial", modelfull))
+ggplot() +
+  #geom_point(data = plot_dfB, aes(x = trial_nr, y = HVclicks, color = group, size = 1), show.legend = FALSE) +
+  geom_line(data = z, aes(x = logtrial, y = fit, group = PCA, color = as.factor(PCA)), size = 1, show.legend = FALSE) +
+  geom_ribbon(data = z, aes(x = logtrial, ymin = lower, ymax = upper, group = PCA, fill = as.factor(PCA)), alpha = 0.3, show.legend = FALSE) +
+  labs(x = "Log trial Number", y = "Distance from high value cell", color = "PCA", fill = "PCA") +
+  theme_classic() + ylim(0.05,0.75) + scale_color_manual(values = c("deepskyblue", "grey", "yellow", "orange", "darkorange")) + scale_fill_manual(values=c("deepskyblue", "grey", "yellow", "orange", "darkorange")) 
+ggsave("D(trialPCA).png", device = "png", height = 5, width = 6)
 ###
-#distance from most previous click
+#distance from previous click
 ###
 
 #between group
-modelfull <- lmer(logdistance_prev ~ (group + gender + age + logtrial + block_nr)^2 + (1|subjectID), data = data_Bfilter)
+modelfull <- lmer(logdistance_prev ~ (group + logtrial + block_nr + SDS + SRS + PAQ)^2 + gender + age + (1+logtrial*block_nr|subjectID), data = data_Bfilter, control = lmerControl(optimizer = "bobyqa"))
 summary(modelfull)
-png(file="Dprev(trialgroup).png", height = 5*130, width = 6*130)
-plot(effect("group:logtrial", modelfull), ci.style="bands",
-     multiline=T, lines=list(-3, -2, -1, 0, 1, 2, 3), key.args = list(x = 0.7, y = 0.62, corner = c(0.5, -0.4), cex = 0.5), 
-     xlab="Trial", ylab="Distance of previous click", colors = c("grey", "orange"))
-dev.off()
+z <- as.data.frame(effect("group:logtrial", modelfull))
+ggplot() +
+  #geom_point(data = plot_dfB, aes(x = trial_nr, y = HVclicks, color = group, size = 1), show.legend = FALSE) +
+  geom_line(data = z, aes(x = logtrial, y = fit, group = group, color = group), size = 1, show.legend = FALSE) +
+  geom_ribbon(data = z, aes(x = logtrial, ymin = lower, ymax = upper, group = group, fill = group), alpha = 0.3, show.legend = FALSE) +
+  labs(x = "Log trial Number", y = "Distance from high value cell", color = "Group", fill = "Group") +
+  theme_classic() + ylim(-3,2) + scale_fill_manual(values=c("grey", "orange")) + scale_color_manual(values = c("grey", "orange"))
+ggsave("Dprev(trialgroup).png", device = "png", height = 5, width = 6)
 
 #within group
-modelfull <- lmer(logdistance_prev ~ (gender + age + logtrial + block_nr + PCA)^2 + (1|subjectID), data = data_Wfilter)
+modelfull <- lmer(logdistance_prev ~ (PCA + logtrial + block_nr + SDS + SRS + PAQ)^2 + gender + age + (1+logtrial*block_nr|subjectID), data = data_Wfilter, control = lmerControl(optimizer = "bobyqa"))
 summary(modelfull)
-png(file="Dprev(trialPCA).png", height = 5*130, width = 6*130)
-plot(effect("logtrial:PCA", modelfull), ci.style="bands",
-     multiline=T, lines=list(-3, -2, -1, 0, 1, 2, 3), key.args = list(x = 0.7, y = 0.62, corner = c(0.5, -0.4), cex = 0.5), 
-     xlab="Trial", ylab="Distance of previous click", colors=c("deepskyblue", "grey", "yellow", "orange", "darkorange"))
-dev.off()
+z <- as.data.frame(effect("PCA:logtrial", modelfull))
+ggplot() +
+  #geom_point(data = plot_dfB, aes(x = trial_nr, y = HVclicks, color = group, size = 1), show.legend = FALSE) +
+  geom_line(data = z, aes(x = logtrial, y = fit, group = PCA, color = as.factor(PCA)), size = 1, show.legend = FALSE) +
+  geom_ribbon(data = z, aes(x = logtrial, ymin = lower, ymax = upper, group = PCA, fill = as.factor(PCA)), alpha = 0.3, show.legend = FALSE) +
+  labs(x = "Log trial Number", y = "Distance from high value cell", color = "PCA", fill = "PCA") +
+  theme_classic() + ylim(-3,2) + scale_color_manual(values = c("deepskyblue", "grey", "yellow", "orange", "darkorange")) + scale_fill_manual(values=c("deepskyblue", "grey", "yellow", "orange", "darkorange")) 
+ggsave("Dprev(trialPCA).png", device = "png", height = 5, width = 6)
 
 
 ###
@@ -528,7 +555,7 @@ dev.off()
 ###
 ###
 
-setwd("C:/Users/fgoetmae/OneDrive - UGent/Documents/Projects/Correlation/analysis")
+setwd("../../analysis")
 
 #est <- read.csv(file = "1env_0405.csv") #estimates over all trials #classic model
 est <- read.csv(file = "1env_1710.csv")                             #localized version
@@ -557,6 +584,7 @@ info_B <- infoS[!(infoS$group == 'control' & infoS$AQbin > 32),] #delete all con
 info_B$group <- factor(info_B$group, levels = c("control", "autism"))
 
 #rescale factors for L(M)Models
+info_B$gender <- ifelse(info_B$gender == "Other" | info_B$gender == "Prefer not to say", "Female", info_B$gender)
 info_B["gender"] <- as.factor(info_B$gender)
 info_B["age"] <- scale(info_B$age)
 info_B["SDS"] <- scale(info_B$SDS)
@@ -569,7 +597,7 @@ info_B["logt"] <- scale(log(info_B$t, 10))
 info_B["NLL"] <- scale(info_B$NLL)
 
 info_W <- infoS[infoS$subjectID %in% info_Wfilter$subjectID,]
-info_W <- info_W[info_W$gender != "Prefer not to say",]
+info_W$gender <- ifelse(info_W$gender == "Other" | info_W$gender == "Prefer not to say", "Female", info_W$gender)
 info_W["PCA"] <- scale(info_W$PCA)
 info_W["gender"] <- as.factor(info_W$gender)
 info_W["age"] <- scale(info_W$age)
@@ -582,99 +610,78 @@ info_W["logb"] <- scale(log(info_W$b, 10))
 info_W["logt"] <- scale(log(info_W$t, 10))
 info_W["NLL"] <- scale(info_W$NLL)
 
-setwd("../output/NHB/figures")
+setwd("../output/figures")
 
 #we type them here in the order that we discuss them:
 #1: all in interaction, all covariates
-m <- glm(formula = group ~ (gender + age + ICAR_total + SDS + SRS + PAQ)^2 + logl + logb + logt, family = binomial, data = info_B)
+m <- glm(formula = group ~ (gender + age + SDS + SRS + PAQ)^2 + logl + logb + logt, family = binomial, data = info_B)
 summary(m)
 plot(effect("logb", m),  ci.style="bands")
-#2: as pure, but with all covariates
+
+
+#only generalization
+m <- glm(formula = group ~ (gender + age + ICAR_total + SDS + SRS + PAQ)^2 + logl, family = binomial, data = info_B)
+summary(m)
+m <- glm(formula = group ~ (gender + age)^2 + logl, family = binomial, data = info_B)
+summary(m)
+m <- glm(formula = group ~ logl, family = binomial, data = info_B)
+summary(m)
+
+#only Uncertainty guided exploration
 m <- glm(formula = group ~ (gender + age + ICAR_total + SDS + SRS + PAQ)^2 + logb, family = binomial, data = info_B)
 summary(m)
 plot(effect("logb", m),  ci.style="bands")
-#3: as pure, but without covariates
 m <- glm(formula = group ~ (gender + age)^2 + logb, family = binomial, data = info_B)
 summary(m)
 plot(effect("logb", m),  ci.style="bands")
-#4: very pure
 m <- glm(formula = group ~ logb, family = binomial, data = info_B)
 summary(m)
 plot(effect("logb", m),  ci.style="bands")
 
-#REPEAT 2-4 FOR THE TWO OTHER PARAMETERS
-#2: as pure, but with all covariates
-m <- glm(formula = group ~ (gender + age + ICAR_total + SDS + SRS + PAQ)^2 + logl, family = binomial, data = info_B)
-summary(m)
-plot(effect("logl", m),  ci.style="bands")
-#3: as pure, but without covariates
-m <- glm(formula = group ~ (gender + age)^2 + logl, family = binomial, data = info_B)
-summary(m)
-plot(effect("logl", m),  ci.style="bands")
-#4: very pure
-m <- glm(formula = group ~ logl, family = binomial, data = info_B)
-summary(m)
-plot(effect("logl", m),  ci.style="bands")
-#2: as pure, but with all covariates
+#only random exploration
 m <- glm(formula = group ~ (gender + age + ICAR_total + SDS + SRS + PAQ)^2 + logt, family = binomial, data = info_B)
 summary(m)
 plot(effect("logt", m),  ci.style="bands")
-#3: as pure, but without covariates
 m <- glm(formula = group ~ (gender + age)^2 + logt, family = binomial, data = info_B)
 summary(m)
 plot(effect("logt", m),  ci.style="bands")
-#4: very pure
 m <- glm(formula = group ~ logt, family = binomial, data = info_B)
 summary(m)
 plot(effect("logt", m),  ci.style="bands")
+
+
 
 ###
 #for within group:
 ###
-m <- glm(formula = PCA ~ (gender + age + ICAR_total + SDS + SRS + PAQ)^2 + logl + logb + logt, family = gaussian, data = info_W)
+m <- glm(formula = PCA ~ (gender + age + SDS + SRS + PAQ)^2 + logl + logb + logt, family = gaussian, data = info_W)
 summary(m)
 plot(effect("logb", m),  ci.style="bands")
-#2: as pure, but with all covariates
+
+#generalization
+m <- glm(formula = PCA ~ (gender + age + ICAR_total + SDS + SRS + PAQ)^2 + logl, family = gaussian, data = info_W)
+summary(m)
+m <- glm(formula = PCA ~ (gender + age)^2 + logl, family = gaussian, data = info_W)
+summary(m)
+m <- glm(formula = PCA ~ logl, family = gaussian, data = info_W)
+summary(m)
+
+#uncertainty guided exploration
 m <- glm(formula = PCA ~ (gender + age + ICAR_total + SDS + SRS + PAQ)^2 + logb, family = gaussian, data = info_W)
 summary(m)
-plot(effect("logb", m),  ci.style="bands")
-#3: as pure, but without covariates
-m <- glm(formula = group ~ (gender + age)^2 + logb, family = binomial, data = info_B)
+m <- glm(formula = PCA ~ (gender + age )^2 + logb, family = gaussian, data = info_W)
 summary(m)
-plot(effect("logb", m),  ci.style="bands")
-#4: very pure
-m <- glm(formula = group ~ logb, family = binomial, data = info_B)
+m <- glm(formula = PCA ~  logb, family = gaussian, data = info_W)
 summary(m)
-plot(effect("logb", m),  ci.style="bands")
+plot(effect("logb", m), ci.style="bands")
 
-#REPEAT 2-4 FOR THE TWO OTHER PARAMETERS
-#2: as pure, but with all covariates
-m <- glm(formula = group ~ (gender + age + ICAR_total + SDS + SRS + PAQ)^2 + logl, family = binomial, data = info_B)
+#random exploration
+m <- glm(formula = PCA ~ (gender + age + ICAR_total + SDS + SRS + PAQ)^2 + logt, family = gaussian, data = info_W)
 summary(m)
-plot(effect("logl", m),  ci.style="bands")
-#3: as pure, but without covariates
-m <- glm(formula = group ~ (gender + age)^2 + logl, family = binomial, data = info_B)
+m <- glm(formula = PCA ~ (gender + age)^2 + logt, family = gaussian, data = info_W)
 summary(m)
-plot(effect("logl", m),  ci.style="bands")
-#4: very pure
-m <- glm(formula = group ~ logl, family = binomial, data = info_B)
+m <- glm(formula = PCA ~ logt, family = gaussian, data = info_W)
 summary(m)
-plot(effect("logl", m),  ci.style="bands")
-#2: as pure, but with all covariates
-m <- glm(formula = group ~ (gender + age + ICAR_total + SDS + SRS + PAQ)^2 + logt, family = binomial, data = info_B)
-summary(m)
-plot(effect("logt", m),  ci.style="bands")
-#3: as pure, but without covariates
-m <- glm(formula = group ~ (gender + age)^2 + logt, family = binomial, data = info_B)
-summary(m)
-plot(effect("logt", m),  ci.style="bands")
-#4: very pure
-m <- glm(formula = group ~ logt, family = binomial, data = info_B)
-summary(m)
-plot(effect("logt", m),  ci.style="bands")
-
-
-
 
 ###
 ###
