@@ -254,7 +254,6 @@ data_Wfilter["logtrial"] <- scale(data_Wfilter$logtrial)
 data_Wfilter["block_nr"] <- scale(data_Wfilter$block_nr)
 
 
-setwd("../output/figures")
 ####
 #extra informative figures
 ###
@@ -270,7 +269,7 @@ ggplot() +
   geom_line(data = m, aes(x = trial_nr, y = mean_x), color = "darkolivegreen") +  # Mean line
   geom_ribbon(data = m, aes(x = trial_nr, ymin = lower_ci, ymax = upper_ci), fill = "darkolivegreen", alpha = 0.3) +  # Confidence interval ribbon
   theme_classic()
-ggsave("nov(trial).png", device = "png", height = 5/0.8, width = 6/0.8)
+
 #high value clicks
 d <- aggregate(data$HV_click, list(subjectID = data$subjectID, trial_nr = data$trial_nr), FUN=mean)
 d$x <- d$x * nr_blocks #to rescale from a percentage to a number
@@ -282,7 +281,7 @@ ggplot() +
   geom_line(data = m, aes(x = trial_nr, y = mean_x), color = "darkolivegreen") +  # Mean line
   geom_ribbon(data = m, aes(x = trial_nr, ymin = lower_ci, ymax = upper_ci), fill = "darkolivegreen", alpha = 0.3) +  # Confidence interval ribbon
   theme_classic()
-ggsave("HV(trial).png", device = "png", height = 5/0.8, width = 6/0.8)
+
 #distance from previous click
 d <- aggregate(data$distance_prev, list(data$subjectID, trial_nr = data$trial_nr), FUN=mean, digits = 4)
 m <- d %>%
@@ -293,13 +292,13 @@ ggplot() +
   geom_line(data = m, aes(x = trial_nr, y = mean_x), color = "darkolivegreen") +  # Mean line
   geom_ribbon(data = m, aes(x = trial_nr, ymin = lower_ci, ymax = upper_ci), fill = "darkolivegreen", alpha = 0.3) +  # Confidence interval ribbon
   theme_classic()
-ggsave("Dprev(trial).png", device = "png", height = 5/0.8, width = 6/0.8)
+
 ggplot() +
   geom_point(data = d, aes(x = trial_nr, y = x), color = "grey", alpha = 0.2, position = position_jitter(width=1,height=.1)) +  # Individual data points
   geom_line(data = m, aes(x = trial_nr, y = mean_x), color = "darkolivegreen") +  # Mean line
   geom_ribbon(data = m, aes(x = trial_nr, ymin = lower_ci, ymax = upper_ci), fill = "darkolivegreen", alpha = 0.3) +  # Confidence interval ribbon
   theme_classic() + scale_x_log10() + scale_y_log10()
-ggsave("DprevLOGLOG(trial).png", device = "png", height = 5/0.8, width = 6/0.8)
+
 #distance from hv cell
 d <- aggregate(data$distance, list(data$subjectID, trial_nr = data$trial_nr), FUN=mean, digits = 4)
 m <- d %>%
@@ -310,13 +309,13 @@ ggplot() +
   geom_line(data = m, aes(x = trial_nr, y = mean_x), color = "darkolivegreen") +  # Mean line
   geom_ribbon(data = m, aes(x = trial_nr, ymin = lower_ci, ymax = upper_ci), fill = "darkolivegreen", alpha = 0.3) +  # Confidence interval ribbon
   theme_classic()
-ggsave("D(trial).png", device = "png", height = 5/0.8, width = 6/0.8)
+
 ggplot() +
   geom_point(data = d, aes(x = trial_nr, y = x), color = "grey", alpha = 0.2, position = position_jitter(width=1,height=.1)) +  # Individual data points
   geom_line(data = m, aes(x = trial_nr, y = mean_x), color = "darkolivegreen") +  # Mean line
   geom_ribbon(data = m, aes(x = trial_nr, ymin = lower_ci, ymax = upper_ci), fill = "darkolivegreen", alpha = 0.3) +  # Confidence interval ribbon
   theme_classic() + scale_x_log10() + scale_y_log10()
-ggsave("DLOGLOG(trial).png", device = "png", height = 5/0.8, width = 6/0.8)
+
 
 ###
 ###
@@ -340,7 +339,7 @@ ggplot(info_Bfilter, aes(x = factor(group), y = performance, fill= group)) +
   geom_boxplot(width = 0.15, outlier.color = NA, alpha = 0.5, show.legend = FALSE) +
   geom_signif(comparisons = list(c("control", "autism")), map_signif_level=TRUE) + 
   ggdist::stat_dots(side = "left", justification = 1.12, binwidth = 3, dotsize = 0.3, overflow = "compress", show.legend = FALSE) + ylim(35, 72)
-ggsave("p(group).png", device = "png", height = 5/0.8, width = 6/0.8)
+
 
 #A2: within group comparison
 nrow(info_Wfilter)
@@ -349,7 +348,7 @@ cor.test(info_Wfilter$performance,info_Wfilter$PCA , method="spearman", exact = 
 ggplot(info_Wfilter, aes(x = PCA, y = performance)) + geom_point() + geom_smooth(method = 'lm', color = "deepskyblue4", fill = "deepskyblue") +
   #annotate("text", x = max(info_Wfilter$PCA)-2, y = max(drop_na(info_Wfilter, performance)$performance - 1), label = paste("p = ", toString(round(c$p.value, digits = 3)))) +
   theme_classic() + ylim(35, 72)
-ggsave("p(PCA).png", device = "png", height = 5/0.8, width = 6/0.8)
+
 
 #quick check: correlation with IQ?
 cor.test(info$performance,info$ICAR_total , method="pearson")
@@ -357,13 +356,13 @@ cor.test(info$performance,info$ICAR_total , method="spearman", exact = FALSE)
 ggplot(info, aes(x = ICAR_total, y = performance)) + geom_point() + geom_smooth(method = 'lm', color = "deepskyblue4", fill = "deepskyblue") +
   #annotate("text", x = max(info_Wfilter$ICAR_total)-2, y = max(drop_na(info_Wfilter, performance)$performance - 1), label = paste("p = ", toString(round(c$p.value, digits = 3))))
   theme_classic() + ylim(35, 72)
-ggsave("p(IQ).png", device = "png", height = 7, width = 8)
+
 #correlation between autistic traits and ICAR
 cor.test(info_Wfilter$PCA,info_Wfilter$ICAR_total , method="pearson", exact = FALSE)
 cor.test(info_Wfilter$PCA,info_Wfilter$ICAR_total , method="spearman", exact = FALSE)
 ggplot(info_Wfilter, aes(x = ICAR_total, y = PCA)) + geom_point() + geom_smooth(method = 'lm', color = "deepskyblue4", fill = "deepskyblue") +
   theme_classic()
-ggsave("PCA(IQ).png", device = "png", height = 5/0.8, width = 6/0.8)
+
 
 
 t.test(info_Bfilter[info_Bfilter$group == 'control',]$ICAR_total, info_Bfilter[info_Bfilter$group == 'autism',]$ICAR_total, alternative = "two.sided", paired = FALSE)
@@ -373,7 +372,7 @@ ggplot(info_Bfilter, aes(x = group, y = ICAR_total, fill= group))+
   geom_boxplot(width = 0.15, outlier.color = NA, alpha = 0.5, show.legend = FALSE) +
   geom_signif(comparisons = list(c("autism", "control")), map_signif_level=TRUE) + 
   ggdist::stat_dots(side = "left", justification = 1.12, dotsize = 0.4, binwidth = 0.5, overflow = "compress", show.legend = FALSE)
-ggsave("IQ(group).png", device = "png", height = 5, width = 6)
+
 
 ###
 #Preregistered: trend of previous_reward vs distance varies with IQ?
@@ -390,14 +389,13 @@ data_temp["IQ"] = scale(as.numeric(data_temp$IQ))
 
 modelfull <- lmer(distance_prev ~ (prev_reward + IQ + gender + age)^2 + (1+prev_reward|subjectID), data = data_temp, control = lmerControl(optimizer = "bobyqa"))
 summary(modelfull)
-png(file="D(prevousIQ).png", height = 5*130, width = 6*130)
 plot(effect("prev_reward:IQ", modelfull), ci.style="bands",
      multiline=T, key.args = list(x = 0.7, y = 0.62, corner = c(0.5, -0.4), cex = 0.5), 
      xaxt = "n",
      xaxp = c(0, 10, 20, 30, 40, 50, 60, 70, 80),
      yaxp = c(0, 2, 4, 6, 8),
      xlab="Previous reward", ylab="Distance from previous click", colors=c("grey", "darkcyan", "cyan", "chartreuse", "darkgreen"))
-dev.off()
+
 
 ###
 ###
@@ -442,24 +440,22 @@ modelfull <- glmer(new_click ~ (group + trial_nr + SDS + SRS + PAQ)^2 + gender +
 summary(modelfull)
 z <- as.data.frame(effect("group:trial_nr", modelfull))
 ggplot() +
-  #geom_point(data = plot_dfB, aes(x = trial_nr, y = Novclicks, color = group, size = 1), show.legend = FALSE) +
   geom_line(data = z, aes(x = trial_nr, y = fit, group = group, color = group), size = 1, show.legend = FALSE) +
   geom_ribbon(data = z, aes(x = trial_nr, ymin = lower, ymax = upper, group = group, fill = group), alpha = 0.3, show.legend = FALSE) +
   labs(x = "Trial Number", y = "Fit", color = "Group", fill = "Group") +
   theme_classic() + scale_fill_manual(values=c("grey", "orange")) + scale_color_manual(values = c("grey", "orange"))
-ggsave("Nov(trial)group.png", device = "png", height = 5, width = 6)
+
 
 #within group
 modelfull <- glmer(new_click ~ (PCA + trial_nr + SDS + SRS + PAQ)^2 + gender + age + (1+trial_nr|subjectID), data = data_Wfilter, family = binomial, control = glmerControl(optimizer = "bobyqa"))
 summary(modelfull)
 z <- as.data.frame(effect("PCA:trial_nr", modelfull))
 ggplot() +
-  #geom_point(data = plot_dfW, aes(x = trial_nr, y = Novclicks, color = as.factor(PCAbin), size = 0.7), show.legend = FALSE) +
    geom_line(data = z, aes(x = trial_nr, y = fit, group = PCA, color = as.factor(PCA)), size = 1, show.legend = FALSE) +
    geom_ribbon(data = z, aes(x = trial_nr, ymin = lower, ymax = upper, group = PCA, fill = as.factor(PCA)), alpha = 0.18, show.legend = TRUE) +
    labs(x = "Trial Number", y = "Number of novel clicks", color = "PCA", fill = "PCA") +
    theme_classic() + scale_color_manual(values = c("deepskyblue", "grey", "yellow", "orange", "darkorange")) + scale_fill_manual(values=c("deepskyblue", "grey", "yellow", "orange", "darkorange")) 
-ggsave("Nov(trial)PCA.png", device = "png", height = 5, width = 6)
+
 
 ###
 #High value clicks
@@ -469,24 +465,20 @@ modelfull <- glmer(HV_click ~ (group + trial_nr + SDS + SRS + PAQ)^2 + gender + 
 summary(modelfull)
 z <- as.data.frame(effect("group:trial_nr", modelfull))
 ggplot() +
-  #geom_point(data = plot_dfB, aes(x = trial_nr, y = HVclicks, color = group, size = 1), show.legend = FALSE) +
   geom_line(data = z, aes(x = trial_nr, y = fit, group = group, color = group), size = 1, show.legend = FALSE) +
   geom_ribbon(data = z, aes(x = trial_nr, ymin = lower, ymax = upper, group = group, fill = group), alpha = 0.3, show.legend = FALSE) +
   labs(x = "Trial Number", y = "Number of high value clicks", color = "Group", fill = "Group") +
   theme_classic() + scale_fill_manual(values=c("grey", "orange")) + scale_color_manual(values = c("grey", "orange"))
-ggsave("HV(trial)group.png", device = "png", height = 5, width = 6)
 
 #within group
 modelfull <- glmer(HV_click ~ (PCA + trial_nr + SDS + SRS + PAQ)^2 + gender + age + (1+trial_nr|subjectID), data = data_Wfilter, family = binomial, control = glmerControl(optimizer = "bobyqa"))
 summary(modelfull)
 z <- as.data.frame(effect("PCA:trial_nr", modelfull))
 ggplot() +
-  #geom_point(data = plot_dfW, aes(x = trial_nr, y = HVclicks, color = as.factor(PCAbin), size = 0.7), show.legend = FALSE) +
   geom_line(data = z, aes(x = trial_nr, y = fit, group = PCA, color = as.factor(PCA)), size = 1, show.legend = FALSE) +
   geom_ribbon(data = z, aes(x = trial_nr, ymin = lower, ymax = upper, group = PCA, fill = as.factor(PCA)), alpha = 0.18, show.legend = FALSE) +
   labs(x = "Trial Number", y = "Number of high value clicks", color = "PCA", fill = "PCA") +
   theme_classic() + scale_color_manual(values = c("deepskyblue", "grey", "yellow", "orange", "darkorange")) + scale_fill_manual(values=c("deepskyblue", "grey", "yellow", "orange", "darkorange")) 
-ggsave("HV(trial)PCA.png", device = "png", height = 5, width = 6)
 
 ###
 ###
@@ -502,24 +494,20 @@ modelfull <- lmer(logdistance ~ (group + logtrial + block_nr + SDS + SRS + PAQ)^
 summary(modelfull)
 z <- as.data.frame(effect("group:logtrial", modelfull))
 ggplot() +
-  #geom_point(data = plot_dfB, aes(x = trial_nr, y = HVclicks, color = group, size = 1), show.legend = FALSE) +
   geom_line(data = z, aes(x = logtrial, y = fit, group = group, color = group), size = 1, show.legend = FALSE) +
   geom_ribbon(data = z, aes(x = logtrial, ymin = lower, ymax = upper, group = group, fill = group), alpha = 0.3, show.legend = FALSE) +
   labs(x = "Log trial Number", y = "Distance from high value cell", color = "Group", fill = "Group") +
   theme_classic() + ylim(0.05,0.75) + scale_fill_manual(values=c("grey", "orange")) + scale_color_manual(values = c("grey", "orange"))
-ggsave("D(trialgroup).png", device = "png", height = 5, width = 6)
 
 #within group
 modelfull <- lmer(logdistance ~ (PCA + logtrial + block_nr + SDS + SRS + PAQ)^2 + gender + age + (1+logtrial*block_nr|subjectID), data = data_Wfilter, control = lmerControl(optimizer = "bobyqa"))
 summary(modelfull)
 z <- as.data.frame(effect("PCA:logtrial", modelfull))
 ggplot() +
-  #geom_point(data = plot_dfB, aes(x = trial_nr, y = HVclicks, color = group, size = 1), show.legend = FALSE) +
   geom_line(data = z, aes(x = logtrial, y = fit, group = PCA, color = as.factor(PCA)), size = 1, show.legend = FALSE) +
   geom_ribbon(data = z, aes(x = logtrial, ymin = lower, ymax = upper, group = PCA, fill = as.factor(PCA)), alpha = 0.3, show.legend = FALSE) +
   labs(x = "Log trial Number", y = "Distance from high value cell", color = "PCA", fill = "PCA") +
   theme_classic() + ylim(0.05,0.75) + scale_color_manual(values = c("deepskyblue", "grey", "yellow", "orange", "darkorange")) + scale_fill_manual(values=c("deepskyblue", "grey", "yellow", "orange", "darkorange")) 
-ggsave("D(trialPCA).png", device = "png", height = 5, width = 6)
 ###
 #distance from previous click
 ###
@@ -529,24 +517,21 @@ modelfull <- lmer(logdistance_prev ~ (group + logtrial + block_nr + SDS + SRS + 
 summary(modelfull)
 z <- as.data.frame(effect("group:logtrial", modelfull))
 ggplot() +
-  #geom_point(data = plot_dfB, aes(x = trial_nr, y = HVclicks, color = group, size = 1), show.legend = FALSE) +
   geom_line(data = z, aes(x = logtrial, y = fit, group = group, color = group), size = 1, show.legend = FALSE) +
   geom_ribbon(data = z, aes(x = logtrial, ymin = lower, ymax = upper, group = group, fill = group), alpha = 0.3, show.legend = FALSE) +
   labs(x = "Log trial Number", y = "Distance from high value cell", color = "Group", fill = "Group") +
   theme_classic() + ylim(-3,2) + scale_fill_manual(values=c("grey", "orange")) + scale_color_manual(values = c("grey", "orange"))
-ggsave("Dprev(trialgroup).png", device = "png", height = 5, width = 6)
+
 
 #within group
 modelfull <- lmer(logdistance_prev ~ (PCA + logtrial + block_nr + SDS + SRS + PAQ)^2 + gender + age + (1+logtrial*block_nr|subjectID), data = data_Wfilter, control = lmerControl(optimizer = "bobyqa"))
 summary(modelfull)
 z <- as.data.frame(effect("PCA:logtrial", modelfull))
 ggplot() +
-  #geom_point(data = plot_dfB, aes(x = trial_nr, y = HVclicks, color = group, size = 1), show.legend = FALSE) +
   geom_line(data = z, aes(x = logtrial, y = fit, group = PCA, color = as.factor(PCA)), size = 1, show.legend = FALSE) +
   geom_ribbon(data = z, aes(x = logtrial, ymin = lower, ymax = upper, group = PCA, fill = as.factor(PCA)), alpha = 0.3, show.legend = FALSE) +
   labs(x = "Log trial Number", y = "Distance from high value cell", color = "PCA", fill = "PCA") +
   theme_classic() + ylim(-3,2) + scale_color_manual(values = c("deepskyblue", "grey", "yellow", "orange", "darkorange")) + scale_fill_manual(values=c("deepskyblue", "grey", "yellow", "orange", "darkorange")) 
-ggsave("Dprev(trialPCA).png", device = "png", height = 5, width = 6)
 
 
 ###
@@ -555,10 +540,9 @@ ggsave("Dprev(trialPCA).png", device = "png", height = 5, width = 6)
 ###
 ###
 
-setwd("../../analysis")
 
 #est <- read.csv(file = "1env_0405.csv") #estimates over all trials #classic model
-est <- read.csv(file = "1env_1710.csv")                             #localized version
+est <- read.csv(file = "estimates.csv")                             #localized version
 #only keep data for which we have an estimate
 est <- est[est$Participant %in% data$subjectID,]
 infoS <- info[info$subjectID %in% est$Participant,]
@@ -610,7 +594,6 @@ info_W["logb"] <- scale(log(info_W$b, 10))
 info_W["logt"] <- scale(log(info_W$t, 10))
 info_W["NLL"] <- scale(info_W$NLL)
 
-setwd("../output/figures")
 
 #we type them here in the order that we discuss them:
 #1: all in interaction, all covariates
@@ -726,25 +709,7 @@ ggplot(infoM, aes(x = factor(group), y = PCA, fill= group)) +
   geom_boxplot(width = 0.15, outlier.color = NA, alpha = 0.5, show.legend = FALSE) +
   geom_signif(comparisons = list(c("autism", "control")), map_signif_level=TRUE) + 
   ggdist::stat_dots(side = "left", justification = 1.12, binwidth = step, overflow = "compress", show.legend = FALSE)
-ggsave("PCA(group)matched.png", device = "png", height = 5, width = 6)
 
-#do they have different camouflaging values? NO
-t.test(infoM[infoM$group == 'autism',]$CATI_cam, infoM[infoM$group == 'control',]$CATI_cam, alternative = "two.sided", paired = FALSE)
-ggplot(infoM, aes(x = factor(group), y = CATI_cam, fill= group)) + 
-  ggdist::stat_halfeye(adjust = 0.5, justification = -.2, .width = 0) + 
-  scale_fill_manual(values=c("grey", "orange")) + theme_classic() + 
-  geom_boxplot(width = 0.15, outlier.color = NA, alpha = 0.5) +
-  geom_signif(comparisons = list(c("autism", "control")), map_signif_level=TRUE) + 
-  ggdist::stat_dots(side = "left", justification = 1.12, binwidth = 1)
-
-#do they have different rep values? NO
-t.test(infoM[infoM$group == 'autism',]$CATI_rep, infoM[infoM$group == 'control',]$CATI_rep, alternative = "two.sided", paired = FALSE)
-ggplot(infoM, aes(x = factor(group), y = CATI_rep, fill= group)) + 
-  ggdist::stat_halfeye(adjust = 0.5, justification = -.2, .width = 0) + 
-  scale_fill_manual(values=c("grey", "orange")) + theme_classic() + 
-  geom_boxplot(width = 0.15, outlier.color = NA, alpha = 0.5) +
-  geom_signif(comparisons = list(c("autism", "control")), map_signif_level=TRUE) + 
-  ggdist::stat_dots(side = "left", justification = 1.12, binwidth = 1)
 
 #do they differ in behaviour?
 t.test(infoM[infoM$group == 'autism',]$Novclicks, infoM[infoM$group == 'control',]$Novclicks, alternative = "two.sided", paired = FALSE)
@@ -755,7 +720,7 @@ ggplot(infoM, aes(x = factor(group), y = Novclicks, fill= group)) +
   geom_boxplot(width = 0.15, outlier.color = NA, alpha = 0.5, show.legend = FALSE) +
   geom_signif(comparisons = list(c("autism", "control")), map_signif_level=TRUE) + 
   ggdist::stat_dots(side = "left", justification = 1.12, binwidth = step, overflow = "compress", show.legend = FALSE)
-ggsave("Novclicks(group)matched.png", device = "png", height = 5, width = 6)
+
 t.test(infoM[infoM$group == 'autism',]$HVclicks, infoM[infoM$group == 'control',]$HVclicks, alternative = "two.sided", paired = FALSE)
 step <- (max(infoM$HVclicks) - min(infoM$HVclicks))/25
 ggplot(infoM, aes(x = factor(group), y = HVclicks, fill= group)) + 
@@ -764,7 +729,7 @@ ggplot(infoM, aes(x = factor(group), y = HVclicks, fill= group)) +
   geom_boxplot(width = 0.15, outlier.color = NA, alpha = 0.5, show.legend = FALSE) +
   geom_signif(comparisons = list(c("autism", "control")), map_signif_level=TRUE) + 
   ggdist::stat_dots(side = "left", justification = 1.12, binwidth = step, overflow = "compress", show.legend = FALSE)
-ggsave("HVclicks(group)matched.png", device = "png", height = 5, width = 6)
+
 
 #do they have different model parameters?
 infoM <- info[info$subjectID %in% est$Participant,]
@@ -784,7 +749,7 @@ ggplot(infoM, aes(x = factor(group), y = logl, fill= group)) +
   geom_boxplot(width = 0.15, outlier.color = NA, alpha = 0.5, show.legend = FALSE) +
   geom_signif(comparisons = list(c("autism", "control")), map_signif_level=TRUE) + 
   ggdist::stat_dots(side = "left", justification = 1.12, binwidth = step, overflow = "compress", show.legend = FALSE)
-ggsave("l(group)matched.png", device = "png", height = 5, width = 6)
+
 #b
 t.test(infoM[infoM$group == 'autism',]$logb, infoM[infoM$group == 'control',]$logb, alternative = "two.sided", paired = FALSE)
 step <- (max(infoM$logb) - min(infoM$logb))/25
@@ -794,7 +759,7 @@ ggplot(infoM, aes(x = factor(group), y = logb, fill= group)) +
   geom_boxplot(width = 0.15, outlier.color = NA, alpha = 0.5, show.legend = FALSE) +
   geom_signif(comparisons = list(c("autism", "control")), map_signif_level=TRUE) + 
   ggdist::stat_dots(side = "left", justification = 1.12, binwidth = step, overflow = "compress", show.legend = FALSE)
-ggsave("b(group)matched.png", device = "png", height = 5, width = 6)
+
 #t
 t.test(infoM[infoM$group == 'autism',]$logt, infoM[infoM$group == 'control',]$logt, alternative = "two.sided", paired = FALSE)
 step <- (max(infoM$logt) - min(infoM$logt))/25
@@ -804,4 +769,4 @@ ggplot(infoM, aes(x = factor(group), y = logt, fill= group)) +
   geom_boxplot(width = 0.15, outlier.color = NA, alpha = 0.5, show.legend = FALSE) +
   geom_signif(comparisons = list(c("autism", "control")), map_signif_level=TRUE) + 
   ggdist::stat_dots(side = "left", justification = 1.12, binwidth = step, overflow = "compress", show.legend = FALSE) 
-ggsave("t(group)matched.png", device = "png", height = 5, width = 6)
+
