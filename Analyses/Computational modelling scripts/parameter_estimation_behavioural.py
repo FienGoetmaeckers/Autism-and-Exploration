@@ -42,7 +42,7 @@ condition = 0
 resultsM2      = {"Participant": data_p["subjectID"].values[0], "l_fit": est[0][0], "beta": est[0][1], 
 	     	     "tau": est[0][2], "condition": condition, "NLL": est[1], "AIC": 2*5 + 2 * est[1]}
 
-with open("1env_" + date + ".csv", 'a') as f_object:
+with open("estimates.csv", 'a') as f_object:
     field_names = ["Participant", "l_fit", "beta", "tau", "condition", "NLL", "AIC"]
     dictwriter_object = DictWriter(f_object, fieldnames=field_names)
     dictwriter_object.writerow(resultsM2)
