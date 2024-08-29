@@ -14,8 +14,7 @@ nr_trials = 25
 nr_participants = 660
 W = L = 11
 #name of the file to read the data from
-data_name = "C:/Users/fgoetmae/OneDrive - UGent/Documents/Projects/Correlation/data/filtered_data"
-date =  "0907"
+data_name = "../../Data/data"
 
 """
 read in the data
@@ -23,15 +22,11 @@ read in the data
 data = pd.read_csv(data_name + '.csv', delimiter=',')
 #select one participant to estimate in this script
 
-p_index = 0
+p_index = 0 #change for next participant estimation
 
-#participant = data.prolificID.unique()[p_index]
 participant = data.subjectID.unique()[p_index]
-#participant = data.id.unique()[p_index]
 print("For participant {}".format(participant))
-#data_p = data.query('prolificID == "{}"'.format(str(participant)))
 data_p = data.query('subjectID == "{}"'.format(str(participant)))
-#data_p = data.query('id == {}'.format(participant))
 
 """
 estimate the model parameters of this participant
@@ -46,8 +41,7 @@ condition = 0
 
 resultsM2      = {"Participant": data_p["subjectID"].values[0], "l_fit": est[0][0], "beta": est[0][1], 
 	     	     "tau": est[0][2], "condition": condition, "NLL": est[1], "AIC": 2*5 + 2 * est[1]}
-#resultsM2      = {"Participant": data_p["prolificID"].values[0], "l_fit": est[0][0], "beta": est[0][1], 
-	     	     #"tau": est[0][2], "condition": condition, "NLL": est[1], "AIC": 2*5 + 2 * est[1]}
+
 with open("1env_" + date + ".csv", 'a') as f_object:
     field_names = ["Participant", "l_fit", "beta", "tau", "condition", "NLL", "AIC"]
     dictwriter_object = DictWriter(f_object, fieldnames=field_names)
