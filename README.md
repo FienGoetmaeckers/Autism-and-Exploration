@@ -7,15 +7,17 @@ All scripts for the project "Different exploration strategies along the autism s
 All needed code to run the online behavioural experiment described in the paper
 * MAB.html will run the behavioural experiment
 * grid_file.js contains reward distributions
+  
+The experiment's code is written in JavaScript and uses the jsPsych framework (https://www.jspsych.org/latest/). All needed scripts, packages and plugins are included in the *Behavioural experiment* folder.
 
-If you want to try out the truffle task, you can access it online here: https://braemlab.ugent.be/Fien/Correlation_N/MAB.html 
+Also, if you want to try out the truffle task, you can access it online here: https://braemlab.ugent.be/Fien/Correlation_N/MAB.html 
 
-this version will not save your data
+This link serves as a demo to understand the mechanisms of the behavioural task. This version does not save your data and can be run on Chrome internet browsers on laptops and desktops. Completing the full task should take about 15 minutes. 
 
 
 ## Analysis
 ### Parameter estimation
-Contains all scripts to read in behavioural data and estimate the model parameters per participant
+Contains all scripts to read in behavioural data and estimate the model parameters per participant. These scripts use Python programming language.
 
 
 ### Statistical analyses
