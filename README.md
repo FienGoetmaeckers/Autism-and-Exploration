@@ -21,9 +21,7 @@ Contains all scripts to read in behavioural data and estimate the model paramete
 
 
 ### Statistical analyses
-* Analysis_script.R : R script for conducting statistical analyses on behavioural and modelling data
-includes code for creation of figures
-* script needs data files, which will be uploaded after publication manuscript
+* Analysis_script.R : R script for conducting statistical analyses on behavioural and modelling data, includes code for creation of figures.
 
 ## Data
 Includes all needed data to replicate findings. 
