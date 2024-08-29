@@ -15,10 +15,10 @@ library(sjPlot)
 #step 1: read in all the data, make sure only relevant data is used
 ###
 
-setwd("Data")
-data <- read.csv(file = "data_f.csv")
-info <- read.csv(file = "info_f.csv")
-quest <- read.csv(file = "question_filtered.csv")
+setwd("../Data")
+data <- read.csv(file = "data.csv")
+info <- read.csv(file = "info.csv")
+quest <- read.csv(file = "quest.csv")
 
 nr_participants <- nrow(info)
 W = L = 11
@@ -696,7 +696,7 @@ matched <- to_vec(for (i in 1:nrow(info)) 0)
 for (p in 1:nrow(info)){
   print("next")
   if (info$group[p] == "autism"){ #only then continue
-    participant <- info$prolificID[p]
+    participant <- info$subjectID[p]
     autism_traits <- info$PCA[p]
     print(autism_traits)
     #find a match by looping over all other pp, starting from where we are in the first loop
