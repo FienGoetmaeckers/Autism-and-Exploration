@@ -16,12 +16,12 @@ This link serves as a demo to understand the mechanisms of the behavioural task.
 
 
 ## Analysis
-### Parameter estimation
-Contains all scripts to read in behavioural data and estimate the model parameters per participant. These scripts use Python programming language.
+### Model and parameter estimation
+Contains all scripts to read in behavioural data and estimate the model parameters per participant. These scripts use Python programming language. We used Python version 3.9.
 
 
 ### Statistical analyses
-* Analysis_script.R : R script for conducting statistical analyses on behavioural and modelling data, includes code for creation of figures.
+* Analysis_script.R : R script for conducting statistical analyses on behavioural and modelling data, includes code for creation of figures. We used R version 4.4.1. 
 
 ## Data
 Includes all needed data to replicate findings. 
