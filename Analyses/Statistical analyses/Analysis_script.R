@@ -15,7 +15,7 @@ library(sjPlot)
 #step 1: read in all the data, make sure only relevant data is used
 ###
 
-setwd("../Data")
+setwd("../../Data")
 data <- read.csv(file = "data.csv")
 info <- read.csv(file = "info.csv")
 quest <- read.csv(file = "quest.csv")
@@ -427,7 +427,7 @@ find_closest_bin <- function(value, bin_centers) {
   closest_bin <- which.min(distances)
   return(closest_bin)
 }
-data_Wfilter$PCAbin <- v[sapply(data_Wfilter$PCA, find_closest_bin, bin_centers = bin_centers)]
+data_Wfilter$PCAbin <- sapply(data_Wfilter$PCA, find_closest_bin, bin_centers = bin_centers)
 name_W <- data_Wfilter %>% group_by(PCAbin, trial_nr)
 plot_dfW <- name_W %>% summarise(Novclicks = mean(new_click), HVclicks = mean(HV_click), D = mean(distance), Dprev = mean(distance_prev))
 
