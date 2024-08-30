@@ -1,5 +1,5 @@
 # Demo information #
-To replicate our findings, you can redo the parameter estimation of one participant by running the *parameter_estimation_behavioural.py* script. In the default version of this script, the parameters of the first participant (p_index = 0; see line 24) are estimated. To try a different participant, change the number of p_index. 
+To replicate our findings, you can redo the parameter estimation of one participant by running the *parameter_estimation_behavioural.py* script. In the default version of this script, the parameters of the first participant (p_index = 0; see line 24) are estimated. To try a different participant, change the number of p_index. Parameter estimation of one participant generally takes around 40 minutes.
 
 # Content information #
 ## The Gaussian Process Regression - Upper Confidence Bound model
