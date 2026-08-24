@@ -9,7 +9,7 @@ from parameter_estimation import estimate
 
 #specific variables for this data file
 nr_blocks = 10
-nr_trials = 13
+nr_trials = 25
 nr_participants = 660
 W = L = 11
 #name of the file to read the data from
