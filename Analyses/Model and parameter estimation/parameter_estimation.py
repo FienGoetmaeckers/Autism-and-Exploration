@@ -21,7 +21,7 @@ xstd = [8, 0.2, 0.2] #actually is this the variance, just wrong name but correct
 xcov = np.diag(xstd)
 
 bounds = np.exp(np.array([(-5, 6), (-5, 3), (-5, 3)]))
-localized = True #to change if we want to use the localized model or not
+localized = True#False#True #to change if we want to use the localized model or not
 
 def estimate(W, L, nr_trials, nr_blocks, data):
     """
@@ -69,7 +69,7 @@ def estimate(W, L, nr_trials, nr_blocks, data):
                 [value for value in data_partial.reward],
                 [value for value in data_partial.average_reward])
         
-        res = minimize(fun=wrapper, x0 = np.log(x0), args=args, method='SLSQP', bounds=np.log(np.array(bounds)))
+        res = minimize(fun=wrapper, x0 = np.log([2,0.5, 0.01]), args=args, method='SLSQP', bounds=np.log(np.array(bounds)))
         (l_fit_est, beta_est, tau_est) = np.exp(res.x)
         
         l_fit_est_list[out_index] = l_fit_est

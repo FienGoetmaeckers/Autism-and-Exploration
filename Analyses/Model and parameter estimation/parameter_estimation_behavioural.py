@@ -8,8 +8,8 @@ from parameter_estimation import estimate
 
 
 #specific variables for this data file
-nr_blocks = 10 
-nr_trials = 25
+nr_blocks = 10
+nr_trials = 13
 nr_participants = 660
 W = L = 11
 #name of the file to read the data from
@@ -25,7 +25,7 @@ p_index = 0 #change for next participant estimation
 
 participant = data.subjectID.unique()[p_index]
 print("For participant {}".format(participant))
-data_p = data.query('subjectID == "{}"'.format(str(participant)))
+data_p = data.query('subjectID == "{}" & trial_nr < {}'.format(str(participant), nr_trials))
 
 """
 estimate the model parameters of this participant

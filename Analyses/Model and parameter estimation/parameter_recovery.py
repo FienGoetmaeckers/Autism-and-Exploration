@@ -90,8 +90,9 @@ for block_nr in range(0, nr_blocks):
         
         rewardlist.append(reward)
            
-        result_trial = {"block_nr": block_nr, "trial_nr": trial_nr, "initial_opened": initial_opened, "selected_choice": tile_number, "reward": reward, "average_reward": np.mean(rewardlist)} 
-        data = data.append(result_trial, ignore_index=True)
+        result_trial = pd.DataFrame([{"block_nr": block_nr, "trial_nr": trial_nr, "initial_opened": initial_opened, "selected_choice": tile_number, "reward": reward, "average_reward": np.mean(rewardlist)}]) 
+        data = pd.concat([data, result_trial], axis=0, ignore_index=True)
+
  
     
 """
