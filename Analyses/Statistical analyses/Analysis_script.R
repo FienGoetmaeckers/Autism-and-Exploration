@@ -253,70 +253,6 @@ data_Wfilter["trial_nr"] <- scale(data_Wfilter$trial_nr)
 data_Wfilter["logtrial"] <- scale(data_Wfilter$logtrial)
 data_Wfilter["block_nr"] <- scale(data_Wfilter$block_nr)
 
-
-####
-#extra informative figures
-###
-#trend of behavioral measures over trials
-#novel clicks
-d <- aggregate(data$new_click, list(subjectID = data$subjectID, trial_nr = data$trial_nr), FUN=mean, digits=3)
-d$x <- d$x * nr_blocks #to rescale from a percentage to a number
-m <- d %>%
-  group_by(trial_nr) %>% 
-  summarise(mean_x = mean(x), lower_ci = mean_x - sd(x) / sqrt(nr_participants), upper_ci = mean_x + sd(x)/sqrt(nr_participants))
-ggplot() +
-  geom_point(data = d, aes(x = trial_nr, y = x), color = "grey", alpha = 0.08, position = position_jitter(width=1,height=.1)) +  # Individual data points
-  geom_line(data = m, aes(x = trial_nr, y = mean_x), color = "darkolivegreen") +  # Mean line
-  geom_ribbon(data = m, aes(x = trial_nr, ymin = lower_ci, ymax = upper_ci), fill = "darkolivegreen", alpha = 0.3) +  # Confidence interval ribbon
-  theme_classic()
-
-#high value clicks
-d <- aggregate(data$HV_click, list(subjectID = data$subjectID, trial_nr = data$trial_nr), FUN=mean)
-d$x <- d$x * nr_blocks #to rescale from a percentage to a number
-m <- d %>%
-  group_by(trial_nr) %>% 
-  summarise(mean_x = mean(x), lower_ci = mean_x - sd(x) / sqrt(nr_participants), upper_ci = mean_x + sd(x)/sqrt(nr_participants))
-ggplot() +
-  geom_point(data = d, aes(x = trial_nr, y = x), color = "grey", alpha = 0.08, position = position_jitter(width=1,height=.1)) +  # Individual data points
-  geom_line(data = m, aes(x = trial_nr, y = mean_x), color = "darkolivegreen") +  # Mean line
-  geom_ribbon(data = m, aes(x = trial_nr, ymin = lower_ci, ymax = upper_ci), fill = "darkolivegreen", alpha = 0.3) +  # Confidence interval ribbon
-  theme_classic()
-
-#distance from previous click
-d <- aggregate(data$distance_prev, list(data$subjectID, trial_nr = data$trial_nr), FUN=mean, digits = 4)
-m <- d %>%
-  group_by(trial_nr) %>% 
-  summarise(mean_x = mean(x), lower_ci = mean_x - sd(x) / sqrt(nr_participants), upper_ci = mean_x + sd(x)/sqrt(nr_participants))
-ggplot() +
-  geom_point(data = d, aes(x = trial_nr, y = x), color = "grey", alpha = 0.08, position = position_jitter(width=1,height=.1)) +  # Individual data points
-  geom_line(data = m, aes(x = trial_nr, y = mean_x), color = "darkolivegreen") +  # Mean line
-  geom_ribbon(data = m, aes(x = trial_nr, ymin = lower_ci, ymax = upper_ci), fill = "darkolivegreen", alpha = 0.3) +  # Confidence interval ribbon
-  theme_classic()
-
-ggplot() +
-  geom_point(data = d, aes(x = trial_nr, y = x), color = "grey", alpha = 0.2, position = position_jitter(width=1,height=.1)) +  # Individual data points
-  geom_line(data = m, aes(x = trial_nr, y = mean_x), color = "darkolivegreen") +  # Mean line
-  geom_ribbon(data = m, aes(x = trial_nr, ymin = lower_ci, ymax = upper_ci), fill = "darkolivegreen", alpha = 0.3) +  # Confidence interval ribbon
-  theme_classic() + scale_x_log10() + scale_y_log10()
-
-#distance from hv cell
-d <- aggregate(data$distance, list(data$subjectID, trial_nr = data$trial_nr), FUN=mean, digits = 4)
-m <- d %>%
-  group_by(trial_nr) %>% 
-  summarise(mean_x = mean(x), lower_ci = mean_x - sd(x) / sqrt(nr_participants), upper_ci = mean_x + sd(x)/sqrt(nr_participants))
-ggplot() +
-  geom_point(data = d, aes(x = trial_nr, y = x), color = "grey", alpha = 0.08, position = position_jitter(width=1,height=.1)) +  # Individual data points
-  geom_line(data = m, aes(x = trial_nr, y = mean_x), color = "darkolivegreen") +  # Mean line
-  geom_ribbon(data = m, aes(x = trial_nr, ymin = lower_ci, ymax = upper_ci), fill = "darkolivegreen", alpha = 0.3) +  # Confidence interval ribbon
-  theme_classic()
-
-ggplot() +
-  geom_point(data = d, aes(x = trial_nr, y = x), color = "grey", alpha = 0.2, position = position_jitter(width=1,height=.1)) +  # Individual data points
-  geom_line(data = m, aes(x = trial_nr, y = mean_x), color = "darkolivegreen") +  # Mean line
-  geom_ribbon(data = m, aes(x = trial_nr, ymin = lower_ci, ymax = upper_ci), fill = "darkolivegreen", alpha = 0.3) +  # Confidence interval ribbon
-  theme_classic() + scale_x_log10() + scale_y_log10()
-
-
 ###
 ###
 #Section 1: Score
@@ -541,10 +477,16 @@ ggplot() +
 ###
 
 
-#est <- read.csv(file = "1env_0405.csv") #estimates over all trials #classic model
-est <- read.csv(file = "estimates.csv")                             #localized version
+est <- read.csv(file = "estimates.csv")  
+
 #only keep data for which we have an estimate
 est <- est[est$Participant %in% data$subjectID,]
+
+#modelfit
+Mrandom <- - log(1/(W*L))*nr_trials*nr_blocks
+R2 <- 1 - mean(est$NLL)/Mrandom
+print(round(R2, 3))
+
 infoS <- info[info$subjectID %in% est$Participant,]
 
 l <- c()
@@ -597,39 +539,17 @@ info_W["NLL"] <- scale(info_W$NLL)
 
 #we type them here in the order that we discuss them:
 #1: all in interaction, all covariates
-m <- glm(formula = group ~ (gender + age + SDS + SRS + PAQ)^2 + logl + logb + logt, family = binomial, data = info_B)
+m <- glm(formula = group ~ (SDS + SRS + PAQ)^2 + gender + age + logl + logb + logt, family = binomial, data = info_B)
 summary(m)
+plot(effect("logl", m),  ci.style="bands")
 plot(effect("logb", m),  ci.style="bands")
-
-
-#only generalization
-m <- glm(formula = group ~ (gender + age + ICAR_total + SDS + SRS + PAQ)^2 + logl, family = binomial, data = info_B)
-summary(m)
-m <- glm(formula = group ~ (gender + age)^2 + logl, family = binomial, data = info_B)
-summary(m)
-m <- glm(formula = group ~ logl, family = binomial, data = info_B)
-summary(m)
-
-#only Uncertainty guided exploration
-m <- glm(formula = group ~ (gender + age + ICAR_total + SDS + SRS + PAQ)^2 + logb, family = binomial, data = info_B)
-summary(m)
-plot(effect("logb", m),  ci.style="bands")
-m <- glm(formula = group ~ (gender + age)^2 + logb, family = binomial, data = info_B)
-summary(m)
-plot(effect("logb", m),  ci.style="bands")
-m <- glm(formula = group ~ logb, family = binomial, data = info_B)
-summary(m)
-plot(effect("logb", m),  ci.style="bands")
-
-#only random exploration
-m <- glm(formula = group ~ (gender + age + ICAR_total + SDS + SRS + PAQ)^2 + logt, family = binomial, data = info_B)
-summary(m)
 plot(effect("logt", m),  ci.style="bands")
-m <- glm(formula = group ~ (gender + age)^2 + logt, family = binomial, data = info_B)
+
+#without controlling:
+m <- glm(formula = group ~ gender + age + logl + logb + logt, family = binomial, data = info_B)
 summary(m)
-plot(effect("logt", m),  ci.style="bands")
-m <- glm(formula = group ~ logt, family = binomial, data = info_B)
-summary(m)
+plot(effect("logl", m),  ci.style="bands")
+plot(effect("logb", m),  ci.style="bands")
 plot(effect("logt", m),  ci.style="bands")
 
 
@@ -637,34 +557,13 @@ plot(effect("logt", m),  ci.style="bands")
 ###
 #for within group:
 ###
-m <- glm(formula = PCA ~ (gender + age + SDS + SRS + PAQ)^2 + logl + logb + logt, family = gaussian, data = info_W)
+m <- glm(formula = PCA ~ (SDS + SRS + PAQ)^2 + gender + age + logl + logb + logt, family = gaussian, data = info_W)
 summary(m)
 plot(effect("logb", m),  ci.style="bands")
 
-#generalization
-m <- glm(formula = PCA ~ (gender + age + ICAR_total + SDS + SRS + PAQ)^2 + logl, family = gaussian, data = info_W)
+m <- glm(formula = PCA ~gender + age + logl + logb + logt, family = gaussian, data = info_W)
 summary(m)
-m <- glm(formula = PCA ~ (gender + age)^2 + logl, family = gaussian, data = info_W)
-summary(m)
-m <- glm(formula = PCA ~ logl, family = gaussian, data = info_W)
-summary(m)
-
-#uncertainty guided exploration
-m <- glm(formula = PCA ~ (gender + age + ICAR_total + SDS + SRS + PAQ)^2 + logb, family = gaussian, data = info_W)
-summary(m)
-m <- glm(formula = PCA ~ (gender + age )^2 + logb, family = gaussian, data = info_W)
-summary(m)
-m <- glm(formula = PCA ~  logb, family = gaussian, data = info_W)
-summary(m)
-plot(effect("logb", m), ci.style="bands")
-
-#random exploration
-m <- glm(formula = PCA ~ (gender + age + ICAR_total + SDS + SRS + PAQ)^2 + logt, family = gaussian, data = info_W)
-summary(m)
-m <- glm(formula = PCA ~ (gender + age)^2 + logt, family = gaussian, data = info_W)
-summary(m)
-m <- glm(formula = PCA ~ logt, family = gaussian, data = info_W)
-summary(m)
+plot(effect("logb", m),  ci.style="bands")
 
 ###
 ###
